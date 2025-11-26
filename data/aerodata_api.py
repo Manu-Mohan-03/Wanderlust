@@ -51,10 +51,10 @@ def search_airport_by_text(text):
 #####################################################################################
 def routes_from_airport(airport_code, date=None):
     if date:
-        url = f"https://aerodatabox.p.rapidapi.com/airports/%7Biata%7D/{airport_code}/stats/routes/daily/"
-    else:
         # Date in YYYY-MM-DD format
         url = f"https://aerodatabox.p.rapidapi.com/airports/%7Biata%7D/{airport_code}/stats/routes/daily/{date}"
+    else:
+        url = f"https://aerodatabox.p.rapidapi.com/airports/%7Biata%7D/{airport_code}/stats/routes/daily/"
 
     response = requests.get(url, headers=RAPID_API_HEADERS)
 
