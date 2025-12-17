@@ -5,9 +5,9 @@ CREATE TABLE "users" (
   "role" varchar,
   "city" varchar,
   "country" varchar,
-  "dark_mode" varchar,
-  "map_mode" varchar,
-  "date_tolerance" varchar,
+  "dark_mode" boolean,
+  "map_mode" boolean,
+  "date_tolerance" integer,
   "created_at" timestamp
 );
 
@@ -34,9 +34,7 @@ CREATE TABLE "leg_flight" (
   "trip_id" integer,
   "leg_no" integer,
   "flight_id" varchar,
-  "origin_airport" varchar,
-  "destination_airport" varchar,
-  PRIMARY KEY ("trip_id", "leg_no", "flight_id")
+  PRIMARY KEY ("trip_id", "leg_no")
 );
 
 CREATE TABLE "country" (
@@ -47,21 +45,29 @@ CREATE TABLE "country" (
 CREATE TABLE "city" (
   "city_key" varchar,
   "name" varchar,
-  "country" varchar,
+  "country_key" varchar,
   "timezone" varchar,
+  "latitude" decimal,
+  "longitude" decimal,
   PRIMARY KEY ("city_key")
 );
 
 CREATE TABLE "airport" (
   "airport_key" varchar PRIMARY KEY,
   "city_key" varchar,
-  "name" varchar
+  "name" varchar,
+  "latitude" decimal,
+  "longitude" decimal
 );
 
 CREATE TABLE "airline" (
   "airline_id" varchar PRIMARY KEY,
   "name" varchar,
-  "logo" varchar
+  "hub_airport" varchar,
+  "airline_code" varchar,
+  "is_defunct" varchar,
+  "logo" varchar,
+  "id" integer
 );
 
 CREATE TABLE "schedules" (
@@ -88,18 +94,15 @@ ALTER TABLE "city" ADD FOREIGN KEY ("country") REFERENCES "country" ("country_ke
 
 ALTER TABLE "airport" ADD FOREIGN KEY ("city_key") REFERENCES "city" ("city_key");
 
+ALTER TABLE "airline" ADD FOREIGN KEY ("hub_airport") REFERENCES "airport" ("airport_key");
+
 ALTER TABLE "users" ADD FOREIGN KEY ("country") REFERENCES "country" ("country_key");
 
 ALTER TABLE "users" ADD FOREIGN KEY ("city") REFERENCES "city" ("city_key");
 
 ALTER TABLE "schedules" ADD FOREIGN KEY ("orig_airport") REFERENCES "airport" ("airport_key");
 
-ALTER TABLE "leg_flight" ADD FOREIGN KEY ("origin_airport") REFERENCES "airport" ("airport_key");
-
-ALTER TABLE "leg_flight" ADD FOREIGN KEY ("destination_airport") REFERENCES "airport" ("airport_key");
-
 ALTER TABLE "leg_flight" ADD FOREIGN KEY ("flight_id") REFERENCES "schedules" ("flight_id");
 
 ALTER TABLE "schedules" ADD FOREIGN KEY ("dest_airport") REFERENCES "airport" ("airport_key");
 
-ALTER TABLE "schedules" ADD FOREIGN KEY ("airline") REFERENCES "airline" ("airline_id");
