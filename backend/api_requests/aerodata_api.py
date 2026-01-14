@@ -2,6 +2,9 @@
 import requests
 import os
 from dotenv import load_dotenv
+from pydantic import TypeAdapter
+
+from backend.business_logic.pydantic_models import AirportModel
 from backend.utilities.time_travel import (get_current_date, is_valid_date_string,
                                            get_current_datetime, add_duration_to_datetime,
                                            is_dates_in_order)
@@ -22,7 +25,7 @@ def get_airport_by_code(code):
 
     print(response.json())
 
-def search_airports_by_location(latitude,longitude,radius=50):
+def search_airports_by_location(latitude,longitude,radius=100):
 
     url = BASE_URL + "airports/search/location"
 
@@ -32,6 +35,13 @@ def search_airports_by_location(latitude,longitude,radius=50):
     response = requests.get(url, headers=RAPID_API_HEADERS, params=querystring)
 
     print(response.json())
+
+    if response.json():
+        airports_json = response.json().get("items")
+        if airports_json:
+            airports = TypeAdapter(list[AirportModel]).validate_python(airports_json)
+            return airports
+    return None
 
 
 def search_airport_by_ip(ip_address, radius=50):
@@ -161,5 +171,5 @@ def get_flight_info(flight_id: str, date_str: str = get_current_date()):
 
 
 #get_airport_by_code("BLR")
-#search_airports_by_location(12.95,77.46, radius=500)
-get_flight_schedules("LH003", to_date="2025-12-25")
+search_airports_by_location(12.95,77.46, radius=500)
+#get_flight_schedules("LH003", to_date="2025-12-25")

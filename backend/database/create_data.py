@@ -1,12 +1,12 @@
 """To add data to the database tables"""
 
 from backend.api_requests import aviation_stack_api, airlabs_api
-import models
+import orm_models
 #from models import Session, Country
 
 def add_countries():
     countries = airlabs_api.get_countries()
-    with models.Session() as session:
+    with models.SessionLocal() as session:
         for values in countries:
             country = models.Country(**values)
             session.add(country)
@@ -15,7 +15,7 @@ def add_countries():
 def add_cities():
     #cities = airlabs_api.get_cities()
     cities = aviation_stack_api.get_cities()
-    with models.Session() as session:
+    with models.SessionLocal() as session:
         for values in cities:
             city = models.City(**values)
             session.add(city)
@@ -23,16 +23,16 @@ def add_cities():
 
 def add_airports():
     airports = aviation_stack_api.get_airports()
-    with models.Session() as session:
+    with orm_models.SessionLocal() as session:
         for values in airports:
-            airport = models.Airport(**values)
+            airport = orm_models.Airport(**values)
             session.add(airport)
             session.commit()
 
 def add_airlines():
     package = 1
     offset = 0
-    with models.Session() as session:
+    with models.SessionLocal() as session:
         #last_airline = session.query(models.Airline).order_by(models.Airline.id.desc()).first()
         # if last_airline:
         #     offset = last_airline.id
@@ -57,7 +57,7 @@ def add_routes():
     from_airport = input("Enter the airport code: ")
     package = 1000
     offset = 0
-    with models.Session() as session:
+    with models.SessionLocal() as session:
         while True:
             routes, new_offset = aviation_stack_api.get_routes(from_airport,package=package, offset=offset)
             for route in routes:
@@ -73,7 +73,7 @@ def add_routes():
 
 
 def clear_cities_table():
-    with models.Session() as session:
+    with models.SessionLocal() as session:
         try:
             session.query(models.City).delete(synchronize_session="fetch")
             session.commit()

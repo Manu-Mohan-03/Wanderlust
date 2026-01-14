@@ -1,10 +1,12 @@
+"""This program defines all the DB ORM models used for the project"""
 import psycopg2
 
 from sqlalchemy import (create_engine, Column, Integer, String, Numeric, Boolean, ForeignKey, DateTime,
-                        func, text, ForeignKeyConstraint)
-from sqlalchemy.orm import DeclarativeBase, sessionmaker, relationship
+                        Time, func, text, ForeignKeyConstraint)
+from sqlalchemy.orm import DeclarativeBase, sessionmaker, relationship, Mapped, mapped_column
 
 from config import load_config
+from decimal import Decimal
 
 
 def get_db_url():
@@ -20,13 +22,13 @@ def get_db_url():
 class Base(DeclarativeBase):
     pass
 
-class Users(Base):
+class UserSchema(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
     username = Column(String, nullable=False)
     email = Column(String, nullable=True)
-    role = Column(String, nullable=False, server_default=text("normal"))
+    role = Column(String, nullable=False, server_default=text("standard"))
     city = Column(String(3), ForeignKey("city.city_key"), nullable=True)
     country = Column(String(2), ForeignKey("country.country_key"), nullable=True)
     dark_mode = Column(Boolean, server_default=text("false"), nullable=False)
@@ -36,9 +38,13 @@ class Users(Base):
 
     city_details = relationship("City", back_populates="users")
     country_details = relationship("Country", back_populates="users")
-    user_trips = relationship("Trips", back_populates="user_details")
+    user_trips = relationship(
+        "TripSchema",
+        back_populates="user_details",
+        cascade="all, delete-orphan"
+    )
 
-class Trips(Base):
+class TripSchema(Base):
     __tablename__ = "trips"
 
     trip_id = Column(Integer, primary_key=True)
@@ -46,11 +52,15 @@ class Trips(Base):
     name = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    user_details = relationship("Users", back_populates="user_trips")
-    trip_details = relationship("TripLegs", back_populates="trip_header")
+    user_details = relationship("UserSchema", back_populates="user_trips")
+    trip_details = relationship(
+        "TripLeg",
+        back_populates="trip_header",
+        cascade = "all, delete-orphan"
+    )
 
 
-class TripLegs(Base):
+class TripLeg(Base):
     __tablename__ = "trip_legs"
 
     trip_id = Column(Integer, ForeignKey("trips.trip_id"), primary_key=True)
@@ -60,20 +70,30 @@ class TripLegs(Base):
     destination_city = Column(String(3), ForeignKey("city.city_key"))
     leg_start = Column(DateTime, nullable=True)
     leg_stop = Column(DateTime, nullable=True)
-    saved_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    saved_at = Column(
+        DateTime(timezone=True), nullable=False,
+        server_default=func.now(), onupdate=func.now()
+    )
 
-    trip_header = relationship("Trips", back_populates="trip_details")
+    trip_header = relationship("TripSchema", back_populates="trip_details")
     orig_city_details = relationship("City", back_populates="city_from")
     dest_city_details = relationship("City", back_populates="city_to")
-    flight_details = relationship("LegFlight", back_populates="trip_details")
+    flight_details = relationship(
+        "LegFlight",
+        back_populates="trip_details",
+        cascade= "all, delete-orphan",
+        uselist=False
+    )
 
     @staticmethod
     def next_leg_number(session, trip_number, step=10):
-        """To find the next leg number per trip_id"""
+        """To find the next leg number per trip_id.
+        Do not need this logic if frontend is passing leg_no: (better)
+        """
         last = (
-            session.query(TripLegs.leg_no)
+            session.query(TripLeg.leg_no)
             .filter_by(trip_id=trip_number)
-            .order_by(TripLegs.leg_no.desc())
+            .order_by(TripLeg.leg_no.desc())
             .first()
         )
         if last is None:
@@ -84,15 +104,20 @@ class TripLegs(Base):
     """
     Try using the same logic for naming individual trips in the Trips class/model
     session = Session(engine)
-
-    new_item = Item(
-        header_id=100,
-        line_number=Item.next_line_number(session, header_id=100),
-        description="New item"
-    )
-    
-    session.add(new_item)
-    session.commit()
+    for attempt in range(attempts): # Try up to 3 times
+        try:
+            new_item = Item(
+                header_id=100,
+                line_number=Item.next_line_number(session, header_id=100),
+                description="New item"
+            )
+            session.add(new_item)
+            session.commit()
+            return new_item
+        except IntegrityError:
+            session.rollback()
+            time.sleep(0.1) # Wait 100ms and try again
+    raise Exception(f"Could not save after {attempts} attempts")            
     """
 
 class LegFlight(Base):
@@ -110,7 +135,7 @@ class LegFlight(Base):
     )
 
     flight_data = relationship("Schedules", back_populates="trips")
-    trip_details = relationship("TripLegs", back_populates="flight_details")
+    trip_details = relationship("TripLeg", back_populates="flight_details")
 
 class Country(Base):
     __tablename__ = "country"
@@ -119,7 +144,7 @@ class Country(Base):
     name = Column(String)
 
     cities = relationship("City", back_populates="country")
-    users = relationship("Users", back_populates="country_details")
+    users = relationship("UserSchema", back_populates="country_details")
 
 class City(Base):
     __tablename__ = "city"
@@ -134,10 +159,10 @@ class City(Base):
 
     country = relationship("Country", back_populates="cities")
     airports = relationship("Airport", back_populates="city")
-    users = relationship("Users", back_populates="city_details")
+    users = relationship("UserSchema", back_populates="city_details")
 
-    city_from = relationship("TripLegs", back_populates="orig_city_details")
-    city_to = relationship("TripLegs", back_populates="dest_city_details")
+    city_from = relationship("TripLeg", back_populates="orig_city_details")
+    city_to = relationship("TripLeg", back_populates="dest_city_details")
 
 class Airport(Base):
     __tablename__ = "airport"
@@ -145,8 +170,10 @@ class Airport(Base):
     airport_key = Column(String(3), primary_key=True)
     name = Column(String)
     city_key = Column(String(3), ForeignKey("city.city_key"))
-    latitude = Column(Numeric)
-    longitude = Column(Numeric)
+    #latitude = Column(Numeric)
+    latitude: Mapped[Decimal] = mapped_column(Numeric)
+    #longitude = Column(Numeric)
+    longitude: Mapped[Decimal] = mapped_column(Numeric)
 
     city = relationship("City", back_populates="airports")
     airlines = relationship("Airline", back_populates="hub")
@@ -176,8 +203,8 @@ class Schedules(Base):
     orig_airport = Column(String(3), ForeignKey("airport.airport_key"))
     dest_airport = Column(String(3), ForeignKey("airport.airport_key"))
     status = Column(String, nullable=True)
-    dep_time = Column(String) # HH:MM
-    arr_time = Column(String) # HH:MM(+1)
+    dep_time = Column(Time, nullable=True) # HH:MM:SS
+    arr_time = Column(Time, nullable=True) # HH:MM:SS(+1)
     airline = Column(String(2),ForeignKey("airport.airport_key"))
     planetype = Column(String, nullable=True)
     operates = Column(String(7), nullable=True)
@@ -203,6 +230,6 @@ def connect(config):
     pass
 
 engine = create_engine(get_db_url())
-Session = sessionmaker(bind=engine)
+SessionLocal = sessionmaker(bind=engine)
 #session = Session()
 #connect(config)
