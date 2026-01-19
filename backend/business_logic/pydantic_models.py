@@ -1,23 +1,34 @@
 from datetime import datetime, time
-from pydantic import BaseModel, Field, AliasPath
+from pydantic import BaseModel
 from enum import Enum
 
 
+# class AirportModel(BaseModel):
+#     airport_key: str = Field(validation_alias="iata")
+#     name: str
+#     city_key: str = Field(validation_alias="municipalityName")
+#     latitude: float = Field(
+#         validation_alias=AliasPath("location","lat")
+#     )
+#     longitude: float = Field(
+#         validation_alias=AliasPath("location", "lon")
+#     )
+#     model_config = {
+#         "from_attributes": True,
+#         "extra": "ignore"
+#     }
+
+
 class AirportModel(BaseModel):
-    airport_key: str = Field(validation_alias="iata")
+    airport_key: str
     name: str
-    city_key: str = Field(validation_alias="municipalityName")
-    latitude: float = Field(
-        validation_alias=AliasPath("location","lat")
-    )
-    longitude: float = Field(
-        validation_alias=AliasPath("location", "lon")
-    )
+    city_key: str
+    latitude: float
+    longitude: float
     model_config = {
         "from_attributes": True,
         "extra": "ignore"
     }
-
 
 class CityModel(BaseModel):
     city_key: str

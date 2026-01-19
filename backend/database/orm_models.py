@@ -5,7 +5,7 @@ from sqlalchemy import (create_engine, Column, Integer, String, Numeric, Boolean
                         Time, func, text, ForeignKeyConstraint)
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, relationship, Mapped, mapped_column
 
-from config import load_config
+from .config import load_config
 from decimal import Decimal
 
 
@@ -131,7 +131,7 @@ class LegFlight(Base):
         ForeignKeyConstraint(
             ["trip_id", "leg_no"],
             ["trip_legs.trip_id", "trip_legs.leg_no"]
-        )
+        ),
     )
 
     flight_data = relationship("Schedules", back_populates="trips")

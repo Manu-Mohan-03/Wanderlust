@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import delete, func
 from datetime import time
 
-from orm_models import UserSchema, TripSchema, TripLeg, LegFlight, Airport, City, Schedules # SessionLocal
+from .orm_models import UserSchema, TripSchema, TripLeg, LegFlight, Airport, City, Schedules # SessionLocal
 from backend.business_logic.pydantic_models import (
     UserIn, TripIn, TripOut, TripLegIn, LegFlightIn, LegFlightUpdate, TripLegUpdate, TripHeaderUpdate, UserUpdate)
 
@@ -362,6 +362,12 @@ class AirportRepo:
         if airport:
             return airport
         return False
+
+    def get_airports(self, code_list):
+        airports = self.db.query(Airport).filter(Airport.airport_key.in_(code_list)).all()
+        if airports:
+            return airports
+        return None
 
     def get_city(self, code):
         city = self.db.get(City, code)

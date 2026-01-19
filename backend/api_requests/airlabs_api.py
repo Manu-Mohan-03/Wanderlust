@@ -63,7 +63,7 @@ def auto_complete(freetext):
 
 
 def get_routes(from_airport:str, to_airport:str|None =None, airline_id:str|None = None):
-    """Generic routes database not upto date or realtime"""
+    """Generic routes database not uptodate or realtime"""
     url = f"{BASE_URL}routes?api_key={API_KEY}&dep_iata={from_airport}"
     if to_airport:
         url = url + f"&arr_iata={to_airport}"

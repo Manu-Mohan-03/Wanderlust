@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 
 from backend.database.orm_models import TripSchema, UserSchema
-from pydantic_models import UserIn, UserOut, UserUpdate, TripIn, TripOut,TripUpdate, AirportModel, CityModel
+from .pydantic_models import UserIn, UserOut, UserUpdate, TripIn, TripOut,TripUpdate, AirportModel, CityModel
 from backend.api_requests.aerodata_api import search_airports_by_location
 from backend.database.datamanager import UserRepository, TripRepository, AirportRepo
 
@@ -210,11 +210,12 @@ def get_nearby_airports(db_session, latitude, longitude, radius=100):
     2. Use Database Tables
     """
     # Using aerodata API
-    airports_list = search_airports_by_location(latitude,longitude,radius)
-    if airports_list:
+    airport_db = AirportRepo(db_session)
+    airport_keys = search_airports_by_location(latitude,longitude,radius)
+    if airport_keys:
+        airports_list = airport_db.get_airports(airport_keys)
         return airports_list
     # Using Database
-    airport_db = AirportRepo(db_session)
     airports_list = airport_db.get_airports_within_radius(latitude, longitude,radius)
     if airports_list:
         return airports_list

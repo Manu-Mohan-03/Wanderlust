@@ -156,7 +156,7 @@ def get_routes(from_airport, to_airport:str|None=None, airline_id:str|None=None,
         for route in routes_json
         if is_route_valid(route)
     ]
-    return routes_list, offset
+    return routes_list
 
 
 def get_airport_schedules(

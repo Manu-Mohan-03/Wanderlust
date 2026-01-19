@@ -39,8 +39,10 @@ def search_airports_by_location(latitude,longitude,radius=100):
     if response.json():
         airports_json = response.json().get("items")
         if airports_json:
-            airports = TypeAdapter(list[AirportModel]).validate_python(airports_json)
-            return airports
+            # Take the key from json and use DB to fill the rest of the details of airport
+            airports_list = [airport.get("iata") for airport in airports_json]
+            #airports = TypeAdapter(list[AirportModel]).validate_python(airports_json) No more needed
+            return airports_list #(List of airports iata codes )
     return None
 
 
@@ -169,7 +171,7 @@ def get_flight_info(flight_id: str, date_str: str = get_current_date()):
     response = requests.get(url,headers=RAPID_API_HEADERS, params= querystring)
     print(response.json())
 
-
-#get_airport_by_code("BLR")
-search_airports_by_location(12.95,77.46, radius=500)
-#get_flight_schedules("LH003", to_date="2025-12-25")
+if __name__ == "__main__":
+    #get_airport_by_code("BLR")
+    search_airports_by_location(12.95,77.46, radius=500)
+    #get_flight_schedules("LH003", to_date="2025-12-25")

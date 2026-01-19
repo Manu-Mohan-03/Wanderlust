@@ -1,6 +1,7 @@
 import requests
+from backend.routes.user_endpoints import app
 
-def checking_aviationstack():
+def checking_aviation_stack():
     params = {
     'access_key': '406a10e437a689315b4e6b436096e78b'
     }
@@ -20,7 +21,8 @@ def checking_aviationstack():
 
 
 def main():
-    checking_aviationstack()
+
+    print(app.routes)
 
 if __name__ == "__main__":
     main()
