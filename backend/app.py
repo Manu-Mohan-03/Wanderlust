@@ -1,5 +1,10 @@
 import requests
-from backend.routes.user_endpoints import app
+from fastapi import FastAPI
+from backend.routes.user_endpoints import router
+
+app = FastAPI()
+app.include_router(router)
+
 
 def checking_aviation_stack():
     params = {
@@ -21,8 +26,7 @@ def checking_aviation_stack():
 
 
 def main():
-
     print(app.routes)
-
+    print("Welcome to Wanderlust: Backend App")
 if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import Literal
 from datetime import datetime
@@ -8,11 +8,11 @@ from backend.business_logic.pydantic_models import (
 from backend.business_logic.handler import (
     User, Trip, get_user_data, get_nearby_airports, get_flights, get_iata_code, delete_trips_by_id,
     get_trip_data, delete_user_by_id)
-from backend.database.orm_models import SessionLocal, Airport
+from backend.database.orm_models import SessionLocal
 
 import backend.utilities.where_is_waldo as coordinates
 
-app = FastAPI()
+router = APIRouter()
 
 def get_db() -> Session:
     db = SessionLocal()
@@ -26,7 +26,7 @@ def get_from_sources(latitude: float, longitude: float):
     pass
 
 
-@app.get("/", response_model=list[AirportModel])
+@router.get("/", response_model=list[AirportModel])
 async def home_page(
         location: tuple | None = Depends(coordinates.get_location),
         db: Session = Depends(get_db)
@@ -42,7 +42,7 @@ async def home_page(
     return airports_list
 
 
-@app.get("/{user_name}", response_model=UserOut)
+@router.get("/{user_name}/", response_model=UserOut)
 async def user_signed_in(
             user_name: str,
             db: Session = Depends(get_db)
@@ -54,7 +54,7 @@ async def user_signed_in(
     return user
 
 
-@app.get("/{user_id}/home", response_model=AirportModel)
+@router.get("/{user_id}/home/", response_model=AirportModel)
 async def user_home_page(
         user_id: int,
         location: tuple | None = Depends(coordinates.get_location),
@@ -71,7 +71,7 @@ async def user_home_page(
     return airports_list
 
 
-@app.get("/flights_of/{iata_code}/{iata_type}", response_model=RouteModel)
+@router.get("/flights_of/{iata_code}/{iata_type}/", response_model=RouteModel)
 async def get_flights(
         iata_code: str,
         iata_type: Literal["city","airport"],
@@ -106,7 +106,7 @@ async def get_flights(
     return routes
 
 
-@app.post("/trip", response_model=TripOut)
+@router.post("/trip/", response_model=TripOut)
 async def create_trips(
         trip_data: TripIn,
         db: Session = Depends(get_db)
@@ -115,7 +115,7 @@ async def create_trips(
     trip_out = trip.create_trip()
     return trip_out
 
-@app.delete("/trip")
+@router.delete("/trip/")
 async def delete_trips(
         trips: list[int],
         db: Session = Depends(get_db)
@@ -123,7 +123,7 @@ async def delete_trips(
 
     delete_trips_by_id(db,trips)
 
-@app.put("/trip", response_model=TripOut)
+@router.put("/trip", response_model=TripOut)
 async def modify_trip(
         trip_data: TripUpdate,
         db: Session = Depends(get_db)
@@ -136,12 +136,12 @@ async def modify_trip(
     trip_out = trip.change_trip(trip_data, trip_db)
     return trip_out
 
-@app.get("/user/{user_name}")
+@router.get("/user/{user_name}")
 async def get_user(user_name:str):
     # This shows the account details
     pass
 
-@app.post("/user/", response_model=UserOut)
+@router.post("/user/", response_model=UserOut)
 async def create_user(
         user_data: UserIn,
         db: Session = Depends(get_db)
@@ -151,7 +151,7 @@ async def create_user(
     new_user = user.create_user()
     return new_user
 
-@app.put("/user/{user_name}", response_model=UserOut)
+@router.put("/user/", response_model=UserOut)
 async def modify_user(
         user_data: UserUpdate,
         db: Session = Depends(get_db)
@@ -163,12 +163,12 @@ async def modify_user(
     modified_user = user.update_user(user_db, user_data)
     return modified_user
 
-@app.delete("/user/{user_name}")
+@router.delete("/user/{user_id}")
 async def delete_user(
         user_id: int,
         db: Session = Depends(get_db)
     ):
-    delete_user_by_id(user_id)
+    delete_user_by_id(db, user_id)
 
 
 
