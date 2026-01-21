@@ -6,18 +6,18 @@ import orm_models
 
 def add_countries():
     countries = airlabs_api.get_countries()
-    with models.SessionLocal() as session:
+    with orm_models.SessionLocal() as session:
         for values in countries:
-            country = models.Country(**values)
+            country = orm_models.Country(**values)
             session.add(country)
         session.commit()
 
 def add_cities():
     #cities = airlabs_api.get_cities()
     cities = aviation_stack_api.get_cities()
-    with models.SessionLocal() as session:
+    with orm_models.SessionLocal() as session:
         for values in cities:
-            city = models.City(**values)
+            city = orm_models.City(**values)
             session.add(city)
         session.commit()
 
@@ -32,7 +32,7 @@ def add_airports():
 def add_airlines():
     package = 1
     offset = 0
-    with models.SessionLocal() as session:
+    with orm_models.SessionLocal() as session:
         #last_airline = session.query(models.Airline).order_by(models.Airline.id.desc()).first()
         # if last_airline:
         #     offset = last_airline.id
@@ -48,7 +48,7 @@ def add_airlines():
             airlines = aviation_stack_api.get_airlines(offset, package)
             offset = offset + package
             for values in airlines:
-                airline = models.Airline(**values)
+                airline = orm_models.Airline(**values)
                 session.add(airline)
                 session.commit()
 
@@ -57,11 +57,11 @@ def add_routes():
     from_airport = input("Enter the airport code: ")
     package = 1000
     offset = 0
-    with models.SessionLocal() as session:
+    with orm_models.SessionLocal() as session:
         while True:
             routes, new_offset = aviation_stack_api.get_routes(from_airport,package=package, offset=offset)
             for route in routes:
-                route = models.Schedules(**route)
+                route = orm_models.Schedules(**route)
                 session.add(route)
                 session.commit()
             if new_offset == 0:
@@ -73,23 +73,19 @@ def add_routes():
 
 
 def clear_cities_table():
-    with models.SessionLocal() as session:
+    with orm_models.SessionLocal() as session:
         try:
-            session.query(models.City).delete(synchronize_session="fetch")
+            session.query(orm_models.City).delete(synchronize_session="fetch")
             session.commit()
-            print(f"Successfully deleted all data from table '{models.City.__tablename__}'.")
+            print(f"Successfully deleted all data from table '{orm_models.City.__tablename__}'.")
         except Exception as e:
             session.rollback()
             print("Error during deletion", e)
 
 
+if __name__ == "__main__":
+    #add_cities()
+    #add_airports()
+    #add_airlines()
 
-
-
-#add_cities()
-#clear_cities_table()
-
-#add_airports()
-#add_airlines()
-
-add_routes()
+    add_routes()

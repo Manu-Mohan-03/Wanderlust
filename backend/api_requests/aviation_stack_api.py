@@ -3,8 +3,11 @@ To handle the api requests to AviationStack (https://aviationstack.com/)
 It can only be used for master data , as their more transactional data API are paid services
 Free APIs: -
 /v1/airports, /v1/airlines, /v1/airplanes, /v1/aircraft_types,
-/v1/cities, /v1/countries, /v1/taxes
-/v1/flights	(Real‑time or historical flights)
+/v1/cities, /v1/countries, /v1/taxes.
+/v1/flights	(Real‑time or historical flights) is not productive as flight date parameter can only be used with
+paid plan, and since the limit is 100/api request and flights also considers code shared airlines in the output, each
+airport will have lot of entries in response and need to loop and call api for every 100 requests, which makes using
+this API is complicated
 """
 import requests
 import os
@@ -15,10 +18,21 @@ from backend.utilities.time_travel import convert_time
 load_dotenv()
 API_KEY = "access_key=" + os.getenv("AVIATION_STACK_APIKEY")
 BASE_URL = "https://api.aviationstack.com/v1/"
+LIMIT = 1000
+
+
+def get_countries():
+    url = f"{BASE_URL}countries?api_key={API_KEY}&limit={LIMIT}"
+    countries_json = call_api(url)[0]
+    countries = [
+        {"country_key": country["country_iso2"], "name": country["country_name"]}
+        for country in countries_json
+    ]
+    return countries
+
 
 def get_cities():
-    limit = 100
-    url = f"{BASE_URL}cities?{API_KEY}&limit={limit}"
+    url = f"{BASE_URL}cities?{API_KEY}&limit={LIMIT}"
     total_available_cities = 9374
     offset = 0
     cities = []
@@ -28,7 +42,6 @@ def get_cities():
         cities_json = call_api(url_with_offset)[0]
         offset += len(cities_json)
         print(cities_json)
-        # At a time api will only provide 100 entries by default
         city_list = [
             {
                 "city_key": city["iata_code"],
@@ -46,13 +59,12 @@ def get_cities():
 
 
 def get_airports():
-    limit = 100
-    url = f"{BASE_URL}airports?{API_KEY}&limit={limit}"
+    url = f"{BASE_URL}airports?{API_KEY}&limit={LIMIT}"
     total_available_airports = 6702
     offset = 6699
     airports = []
 
-    while len(airports) < 1: #total_available_airports:
+    while len(airports) < total_available_airports:
         url_with_offset = url + f"&offset={offset}"
         airports_json = call_api(url_with_offset)[0]
         offset += len(airports_json)
@@ -89,9 +101,8 @@ def is_airline_valid(airline: dict):
     return True
 
 
-def get_airlines(offset=0, package=100):
-    #limit = package
-    limit = 1
+def get_airlines(offset=0, package=1000):
+    limit = package
     url = f"{BASE_URL}airlines?{API_KEY}&limit={limit}"
     #total_available_airlines = 13164
     airlines = []
@@ -131,7 +142,13 @@ def is_route_valid(route):
         return False
     return True
 
-def get_routes(from_airport, to_airport:str|None=None, airline_id:str|None=None, package=1000, offset=0):
+def get_routes(
+        from_airport,
+        to_airport:str|None=None,
+        airline_id:str|None=None,
+        package=1000, offset=0
+    ):
+    """Paid plan required"""
     limit = package
     url = f"{BASE_URL}routes?{API_KEY}&limit={limit}&dep_iata={from_airport}"
     if to_airport:
@@ -162,7 +179,7 @@ def get_routes(from_airport, to_airport:str|None=None, airline_id:str|None=None,
 def get_airport_schedules(
         from_airport, airline_id:str|None=None,travel_date: str|None = None, package=1000, offset=0,
 ):
-    """This API cannot filter with arrival airport"""
+    """Paid Plan required to use the API. This API cannot filter with arrival airport."""
     limit = package
     if travel_date: # YYYY-MM-DD
         url = f"{BASE_URL}flightsFuture?{API_KEY}&iataCode={from_airport}&date={travel_date}&type=departure"
@@ -175,7 +192,7 @@ def get_airport_schedules(
         url = url + f"&airline_iata={airline_id}"
     url = url + f"&limit={limit}"
     schedules_json = call_api(url)
-    print(schedules_json)
+    print(schedules_json[0])
 
 def call_api(url):
     response = requests.get(url)

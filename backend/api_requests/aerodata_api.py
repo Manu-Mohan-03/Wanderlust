@@ -1,4 +1,10 @@
-"""API Aero Data, Provides Flight Schedules and Routes"""
+"""API Aero Data, Provides Flight Schedules and Routes
+1. routes from airport:- Cannot find the flights for a specific future date, also it wont show
+the departure time and arrival time. it gives more departure data of all the airports served and
+which all airlines provide the service
+2. get airport schedules : - Provide more realtime of flights departing/arriving at an airport
+with dep time and arrival time for any date in future
+"""
 import requests
 import os
 from dotenv import load_dotenv
@@ -6,8 +12,8 @@ from pydantic import TypeAdapter
 
 from backend.business_logic.pydantic_models import AirportModel
 from backend.utilities.time_travel import (get_current_date, is_valid_date_string,
-                                           get_current_datetime, add_duration_to_datetime,
-                                           is_dates_in_order)
+                                           get_current_datetime, add_minutes_to_datetime,
+                                           is_dates_in_order, parse_time)
 
 
 # For API Key
@@ -67,7 +73,7 @@ def search_airport_by_text(text):
 
 #####################################################################################
 def routes_from_airport(airport_code, date_str=None):
-    """
+    """ Statistical API
     Finds the most important or daily routes from an airport. If provided a date, daily routes
     are determined based on the 7 days prior data otherwise based on today's date (API will handle this)
     :param airport_code: IATA code
@@ -85,35 +91,70 @@ def routes_from_airport(airport_code, date_str=None):
 
     response = requests.get(url, headers=RAPID_API_HEADERS)
 
-    print(response.json())
+    #print(response.json())
+    routes_json = response.json().get("routes")
+    routes_list = [
+        {
+            "orig_airport": airport_code,
+            "dest_airport": route.get("destination").get("iata"),
+            "status": "active",
+            "airline": [
+                airline.get("iata")
+                for airline in route.get("operators")
+                if airline.get("iata")
+            ]
+        }
+        for route in routes_json
+        if route.get("number")
+    ]
+    return routes_list
 
 #####################################API needed for later requirements
-def get_airport_schedules(airport_id, from_time = None, duration = 720):
-    """
+def get_airport_schedules(airport_id, direction="Departure", from_time = None, time_period = 720):
+    """ Flight API: airport departures and arrivals
     To get the scheduled departures/arrivals from an airport with in a local time range
     :param airport_id:
+    :param direction:
     :param from_time:
-    :param duration: time duration in minutes
+    :param time_period: time duration in minutes
     :return:
     """
     if from_time is None:
         from_time = get_current_datetime()
     else:
-        if not is_valid_date_string(from_time):
+        if not is_valid_date_string(from_time, "%Y-%m-%dT%H:%M"):
             raise Exception("Invalid Date string")
-    to_time = add_duration_to_datetime(from_time, duration)
-
+    to_time = add_minutes_to_datetime(
+        from_time, time_period, "%Y-%m-%dT%H:%M")
+    print(to_time)
     url = BASE_URL + f"flights/airports/iata/{airport_id}/{from_time}/{to_time}"
 
-    querystring = {"withLeg": "true", "direction": "Departure", "withCancelled": "false", "withCargo": "false",
-                   "withPrivate": "false", "withLocation": "false"}
-
+    querystring = {"withLeg": "true", "direction": direction, "withCancelled": "false", "withCargo": "false",
+                   "withPrivate": "false", "withLocation": "false", }
+    print(url)
     response = requests.get(url, headers=RAPID_API_HEADERS, params=querystring)
-    print(response.json())
+    if direction == "Departure":
+        schedules_json = response.json().get("departures")
+    else:
+        schedules_json = response.json().get("arrivals")
 
+    routes_list = [
+        {
+            "flight_id": route.get("number").replace(" ", ""),
+            "orig_airport": airport_id,
+            "dest_airport": route.get("arrival").get("airport").get("iata"),
+            "status": "active",
+            "dep_time": parse_time(route.get("departure").get("scheduledTime").get("local")),
+            "arr_time": parse_time(route.get("arrival").get("scheduledTime").get("local")),
+            "airline": route.get("airline").get("iata"),
+        }
+        for route in schedules_json
+        if route.get("number")
+    ]
+    return routes_list
 
 def get_flight_duration(source, destination):
-    """
+    """Misc API Distance and flight time between airports
     To get the approximate travel time between 2 airports
     :param source: IATA code of source airport
     :param destination: IATA code of destination airport
@@ -132,7 +173,7 @@ def get_flight_duration(source, destination):
 
 
 def get_flight_schedules(flight_id, from_date = None, to_date = None):
-    """
+    """Flight API: Flight Departure Dates
     Gives the information about the rooster details of a particular flight
     :param flight_id: (IATA Code of the flight eg: LH003)
     :param from_date: format YYYY-MM-DD
@@ -165,7 +206,7 @@ def get_flight_schedules(flight_id, from_date = None, to_date = None):
 
 
 def get_flight_info(flight_id: str, date_str: str = get_current_date()):
-
+    """Flight API: Flight Status(single day)"""
     url = BASE_URL + f"flights/number/{flight_id}/{date_str}"
     querystring = {"withAircraftImage": "false", "withLocation": "false", "dateLocalRole": "Departure"}
     response = requests.get(url,headers=RAPID_API_HEADERS, params= querystring)
@@ -173,5 +214,6 @@ def get_flight_info(flight_id: str, date_str: str = get_current_date()):
 
 if __name__ == "__main__":
     #get_airport_by_code("BLR")
-    search_airports_by_location(12.95,77.46, radius=500)
+    #search_airports_by_location(12.95,77.46, radius=500)
     #get_flight_schedules("LH003", to_date="2025-12-25")
+    get_airport_schedules("BLR", "Departure", "2026-01-25T00:00")

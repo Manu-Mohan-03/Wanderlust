@@ -1,4 +1,8 @@
 from datetime import date, datetime, timedelta
+from pydantic import BaseModel
+
+class DateModel(BaseModel):
+    ts: datetime
 
 def get_current_date():
     current_date_obj = date.today()
@@ -12,10 +16,10 @@ def get_current_datetime():
     return current_datetime_str
 
 
-def is_valid_date_string(date_str: str):
+def is_valid_date_string(date_str: str, date_format="%Y-%m-%d"):
     """Check if a date in format YYYY-MM-DD is a valid date"""
     try:
-        datetime.strptime(date_str, "%Y-%m-%d")
+        datetime.strptime(date_str, date_format)
         return True
     except ValueError:
         return False
@@ -35,9 +39,10 @@ def is_dates_in_order(from_date, to_date):
     return False
 
 
-def add_duration_to_datetime(datetime_str, duration):
-    datetime_obj = datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M")
-    return datetime_obj + timedelta(minutes=duration)
+def add_minutes_to_datetime(datetime_str, time_period, date_format):
+    datetime_obj = datetime.strptime(datetime_str, date_format)
+    result_time = datetime_obj + timedelta(minutes=time_period)
+    return datetime.strftime(result_time, date_format )
 
 
 def convert_time(start_time, end_time=None):
@@ -51,4 +56,13 @@ def convert_time(start_time, end_time=None):
     else:
         return start_time_obj.strftime("%H:%M")
 
+def parse_time(ts_str):
+    """Convert timestamp in string format to HH:MM format"""
+    ts_model = DateModel(ts=ts_str)
+    return ts_model.ts.strftime("%H:%M")
+
+def get_weekday(ts_str):
+    datetime_obj = datetime.fromisoformat(ts_str)
+    weekday_number = datetime_obj.isoweekday()
+    return weekday_number
 

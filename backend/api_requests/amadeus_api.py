@@ -1,3 +1,6 @@
+""" This API is ideal for airline routes, nearby airports and airport/city search.
+It is not ideal for airport routes as it gives the city details served by from specific airports.
+Only ideal for a view only purpose."""
 import requests
 import os
 import time
@@ -83,7 +86,7 @@ class AmadeusAPIClient:
         if not self.token or time.time() > self.token_expiry:
             self._get_new_token()
 
-    def get(self, endpoint, **kwargs):
+    def get_request(self, endpoint, **kwargs):
         """Perform a GET request with automatic token handling."""
         self._ensure_token()
         url = f"{self.base_url.rstrip('/')}/{endpoint.lstrip('/')}"
@@ -95,7 +98,7 @@ class AmadeusAPIClient:
 
     def get_relevant_nearby_airports(self, latitude, longitude):
         endpoint = "/reference-data/locations/airports"
-        airports = self.get(endpoint, latitude=latitude, longitude=longitude, radius=500)
+        airports = self.get_request(endpoint, latitude=latitude, longitude=longitude, radius=500)
         print(airports)
 
 
@@ -103,27 +106,35 @@ class AmadeusAPIClient:
         """To get the city or airport details based on free text """
         endpoint = "/reference-data/locations"
         if country_code:
-            locations = self.get(endpoint, subType="CITY,AIRPORT", keyword=freetext, countryCode=country_code)
+            locations = self.get_request(endpoint, subType="CITY,AIRPORT", keyword=freetext, countryCode=country_code)
         else:
-            locations = self.get(endpoint, subType="CITY,AIRPORT", keyword=freetext)
+            locations = self.get_request(endpoint, subType="CITY,AIRPORT", keyword=freetext)
         print(locations)
 
     def get_routes_from_airport(self, airport_id: str, to_country: str | None = None):
+        """This api can provide the list of cities served by a particular airport"""
         endpoint = "airport/direct-destinations"
         if to_country:
-            destinations = self.get(endpoint, departureAirportCode=airport_id, arrivalCountryCode=to_country)
+            response = self.get_request(endpoint, departureAirportCode=airport_id, arrivalCountryCode=to_country)
         else:
-            destinations = self.get(endpoint, departureAirportCode=airport_id)
-        print(destinations)
+            response = self.get_request(endpoint, departureAirportCode=airport_id)
+        destinations = response.get("data")
+        dest_city_list = [city.get("iataCode") for city in destinations if city.get("iataCode")]
+        return dest_city_list
 
 
     def get_destinations_of_airline(self, airline_id: str, to_country: str | None = None):
+        """This api can provide the list of cities served by a particular airline, but
+        the problem is it won't show source city of the flight. Not all airlines operate in hub
+        and spoc setup, in such scenario this endpoint does not meet its purpose. """
         endpoint = "/airline/destinations"
         if to_country:
-            destinations = self.get(endpoint, airlineCode=airline_id, arrivalCountryCode=to_country)
+            response = self.get_request(endpoint, airlineCode=airline_id, arrivalCountryCode=to_country)
         else:
-            destinations = self.get(endpoint, airlineCode=airline_id)
-        print(destinations)
+            response = self.get_request(endpoint, airlineCode=airline_id)
+        destinations = response.get("data")
+        dest_city_list = [city.get("iataCode") for city in destinations if city.get("iataCode")]
+        return dest_city_list
 
     def set_token_for_testing(self, token):
         self.token = token
@@ -135,6 +146,6 @@ if __name__ == "__main__":
         base_url=BASE_URL
     )
 
-    token = input("Enter token for testing the API: ")
-    api.set_token_for_testing(token)
+    # token = input("Enter token for testing the API: ")
+    # api.set_token_for_testing(token)
     api.get_routes_from_airport("DXB")
