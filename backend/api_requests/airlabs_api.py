@@ -3,8 +3,9 @@ To handle the api requests to Airlabs(https://airlabs.co/)
 this api data is not good for cities, junk data for cities with city code not adhering to IATA codes
 not suited for airports, as response won't show city details
 Real time Flights only shows the flights which are available on flight radar
-Airport Schedules/ Routes DB can be used for fetching routes data , but cannot be queried by time
-NameSuggestion and nearby airports can also be used
+Airport Schedules/ Routes DB can be used for fetching routes data , but cannot be queried by time,
+but response gives back time details
+NameSuggestion and nearby airports can be used
 """
 import requests
 import os
@@ -45,7 +46,11 @@ def auto_complete(freetext):
     print(suggestions)
 
 
-def get_routes(from_airport:str|None=None, to_airport:str|None=None, airline_id:str|None = None):
+def get_routes(
+        from_airport:str|None=None,
+        to_airport:str|None=None,
+        airline_id:str|None = None
+    ):
     """Generic routes database not uptodate or realtime"""
     if not from_airport and not to_airport:
         raise ValueError("From/To Required!!")
@@ -76,7 +81,11 @@ def get_routes(from_airport:str|None=None, to_airport:str|None=None, airline_id:
     return routes_list
 
 
-def get_airport_schedules(from_airport:str|None=None, to_airport:str|None=None, airline_id:str|None = None):
+def get_airport_schedules(
+        from_airport:str|None=None,
+        to_airport:str|None=None,
+        airline_id:str|None = None
+    ):
     """Upto date data and shows the flights available in the next 10 hours"""
 
     url = f"{BASE_URL}schedules?api_key={API_KEY}"

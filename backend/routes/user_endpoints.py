@@ -71,15 +71,14 @@ async def user_home_page(
     return airports_list
 
 
-@router.get("/flights_of/{iata_code}/{iata_type}/", response_model=RouteModel)
-async def get_flights(
+@router.get("/flights_of/{iata_code}/{iata_type}/", response_model=list[RouteModel])
+async def get_flight_routes(
         iata_code: str,
         iata_type: Literal["city","airport"],
-        mode: Literal["dep","arr"] = "dep",
-        where: str | None = None,
-        where_type: Literal["city","airport"] | None = None,
-        dep_time: datetime | None = None,
-        arr_time: datetime | None = None,
+        mode: Literal["Departure","Arrival"] = "Departure",
+        from_or_to: str | None = None,
+        ft_type: Literal["city","airport"] | None = None,
+        local_time: datetime | None = None,
         db: Session = Depends(get_db)
     ):
     """direction is either departure/arrival"""
@@ -87,12 +86,12 @@ async def get_flights(
     from_object = to_object = from_airport = to_airport = from_city = to_city = None
     if mode == "dep":
         from_object = get_iata_code(db,iata_code, iata_type)
-        if where:
-            to_object = get_iata_code(db, where, where_type)
+        if from_or_to:
+            to_object = get_iata_code(db, from_or_to, ft_type)
     else:
         to_object = get_iata_code(db, iata_code, iata_type)
-        if where:
-            from_object = get_iata_code(db, where, where_type)
+        if from_or_to:
+            from_object = get_iata_code(db, from_or_to, ft_type)
     if isinstance(from_object, AirportModel):
         from_airport = from_object
     elif isinstance(from_object, CityModel):
@@ -101,7 +100,15 @@ async def get_flights(
         to_airport = to_object
     elif isinstance(to_object, CityModel):
         to_city = to_object
-    routes = get_flights(db, from_airport, from_city, to_airport, to_city, dep_time, arr_time)
+    routes = get_flights(
+        db,
+        mode,
+        from_airport,
+        from_city,
+        to_airport,
+        to_city,
+        local_time,
+        )
 
     return routes
 

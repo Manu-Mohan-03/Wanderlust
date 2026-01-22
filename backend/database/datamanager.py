@@ -404,6 +404,19 @@ class AirportRepo:
 
         return routes
 
+    def add_routes(self, routes_list):
+        schedules: list[Schedules] = []
+        for route in routes_list:
+            schedule = Schedules(**route)
+            self.db.add(schedule)
+            schedules.append(schedule)
+        try:
+            self._db.commit()
+        except Exception:
+            raise
+        for schedule in schedules:
+            self.db.refresh(schedule)
+        return schedules
 
 """
 def db_commit(session):

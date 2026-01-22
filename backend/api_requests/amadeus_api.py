@@ -1,6 +1,7 @@
 """ This API is ideal for airline routes, nearby airports and airport/city search.
-It is not ideal for airport routes as it gives the city details served by from specific airports.
-Only ideal for a view only purpose."""
+It is not ideal for airport routes as it returns the only city details served by the airports.
+Only ideal for a view only purpose. if the user is willing to select airport from the city
+the api can be chained and used(But still cannot be used with date/time)"""
 import requests
 import os
 import time

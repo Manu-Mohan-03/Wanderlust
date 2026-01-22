@@ -1,5 +1,5 @@
 """API Aero Data, Provides Flight Schedules and Routes
-1. routes from airport:- Cannot find the flights for a specific future date, also it wont show
+1. routes from airport:- Cannot find the flights for a specific future date, also it won't show
 the departure time and arrival time. it gives more departure data of all the airports served and
 which all airlines provide the service
 2. get airport schedules : - Provide more realtime of flights departing/arriving at an airport
@@ -23,31 +23,45 @@ RAPID_API_HEADERS =   {
         "x-rapidapi-host": "aerodatabox.p.rapidapi.com"
     }
 BASE_URL = "https://aerodatabox.p.rapidapi.com/"
-def get_airport_by_code(code):
 
+
+def call_api(url,params=None):
+
+    if params:
+        response = requests.get(url, headers=RAPID_API_HEADERS, params=params)
+    else:
+        response = requests.get(url, headers=RAPID_API_HEADERS)
+    if response.status_code != requests.codes.ok:
+        return None
+    return response.json()
+
+
+def get_airport_by_code(code):
+    """Airport API: airport by code"""
     url = BASE_URL + "airports/iata/{code}"
 
-    response = requests.get(url, headers=RAPID_API_HEADERS)
+    airport_json = call_api(url)
+    print(airport_json)
 
-    print(response.json())
 
 def search_airports_by_location(latitude,longitude,radius=100):
-
+    """Airport API: To get the nearby airports"""
     url = BASE_URL + "airports/search/location"
 
     querystring = {"lat": str(latitude), "lon": str(longitude), "radiusKm": str(radius), "limit": "10",
                    "withFlightInfoOnly": "true"}
 
-    response = requests.get(url, headers=RAPID_API_HEADERS, params=querystring)
+    response_json = call_api(url, querystring)
 
-    print(response.json())
+    print(response_json)
 
-    if response.json():
-        airports_json = response.json().get("items")
+    if response_json:
+        airports_json = response_json.get("items")
         if airports_json:
-            # Take the key from json and use DB to fill the rest of the details of airport
+            # Take the key from json and use DB to fetch the additional airport details
             airports_list = [airport.get("iata") for airport in airports_json]
-            #airports = TypeAdapter(list[AirportModel]).validate_python(airports_json) No more needed
+            # Below TypeAdapter No more needed as the logic is changed
+            #airports = TypeAdapter(list[AirportModel]).validate_python(airports_json)
             return airports_list #(List of airports iata codes )
     return None
 
@@ -57,9 +71,9 @@ def search_airport_by_ip(ip_address, radius=50):
 
     querystring = {"q": str(ip_address), "radiusKm": str(radius), "limit": "10", "withFlightInfoOnly": "true"}
 
-    response = requests.get(url, headers=RAPID_API_HEADERS, params=querystring)
+    response_json = call_api(url, querystring)
 
-    print(response.json())
+    print(response_json())
 
 
 def search_airport_by_text(text):
@@ -67,15 +81,16 @@ def search_airport_by_text(text):
 
     querystring = {"q": str(text), "limit": "10"}
 
-    response = requests.get(url, headers=RAPID_API_HEADERS, params=querystring)
+    response_json = call_api(url, querystring)
 
-    print(response.json())
+    print(response_json)
 
 #####################################################################################
 def routes_from_airport(airport_code, date_str=None):
     """ Statistical API
     Finds the most important or daily routes from an airport. If provided a date, daily routes
     are determined based on the 7 days prior data otherwise based on today's date (API will handle this)
+    So cannot be used for future dated search, but helpful for a generic read only search
     :param airport_code: IATA code
     :param date_str: YYYY-MM-DD string
     :return: JSON
@@ -89,19 +104,20 @@ def routes_from_airport(airport_code, date_str=None):
     else:
         url = BASE_URL + f"airports/iata/{airport_code}/stats/routes/daily/"
 
-    response = requests.get(url, headers=RAPID_API_HEADERS)
+    response_json = call_api(url)
 
-    #print(response.json())
-    routes_json = response.json().get("routes")
+    #print(response_json)
+    routes_json = response_json.get("routes")
+    # API provide the destination airports served by the airport along with all airlines that serve the route
     routes_list = [
         {
             "orig_airport": airport_code,
             "dest_airport": route.get("destination").get("iata"),
             "status": "active",
             "airline": [
-                airline.get("iata")
+                airline.get("icao") # Because for airline ICAO is the key field in airline table
                 for airline in route.get("operators")
-                if airline.get("iata")
+                if airline.get("icao")
             ]
         }
         for route in routes_json
@@ -110,7 +126,11 @@ def routes_from_airport(airport_code, date_str=None):
     return routes_list
 
 #####################################API needed for later requirements
-def get_airport_schedules(airport_id, direction="Departure", from_time = None, time_period = 720):
+def get_airport_schedules(
+        airport_id,
+        direction="Departure",
+        from_time = None,
+        time_period = 720):
     """ Flight API: airport departures and arrivals
     To get the scheduled departures/arrivals from an airport with in a local time range
     :param airport_id:
@@ -126,17 +146,17 @@ def get_airport_schedules(airport_id, direction="Departure", from_time = None, t
             raise Exception("Invalid Date string")
     to_time = add_minutes_to_datetime(
         from_time, time_period, "%Y-%m-%dT%H:%M")
-    print(to_time)
+
     url = BASE_URL + f"flights/airports/iata/{airport_id}/{from_time}/{to_time}"
 
     querystring = {"withLeg": "true", "direction": direction, "withCancelled": "false", "withCargo": "false",
                    "withPrivate": "false", "withLocation": "false", }
-    print(url)
-    response = requests.get(url, headers=RAPID_API_HEADERS, params=querystring)
+
+    response_json = call_api(url, querystring)
     if direction == "Departure":
-        schedules_json = response.json().get("departures")
+        schedules_json = response_json.get("departures")
     else:
-        schedules_json = response.json().get("arrivals")
+        schedules_json = response_json.get("arrivals")
 
     routes_list = [
         {
@@ -162,8 +182,9 @@ def get_flight_duration(source, destination):
     """
     url = BASE_URL + f"airports/iata/{source}/distance-time/{destination}"
     querystring = {"flightTimeModel": "ML01"}
-    response = requests.get(url, headers=RAPID_API_HEADERS, params=querystring)
-    duration_str = response.json().get("approxFlightTime")
+
+    response_json = call_api(url, querystring)
+    duration_str = response_json.get("approxFlightTime")
     parts = duration_str.split(":")
 
     hours = parts[0]
@@ -174,6 +195,8 @@ def get_flight_duration(source, destination):
 
 def get_flight_schedules(flight_id, from_date = None, to_date = None):
     """Flight API: Flight Departure Dates
+    Once a flight is selected from airport schedules, the api will respond with list
+    of days on which the flight is operational
     Gives the information about the rooster details of a particular flight
     :param flight_id: (IATA Code of the flight eg: LH003)
     :param from_date: format YYYY-MM-DD
@@ -184,7 +207,8 @@ def get_flight_schedules(flight_id, from_date = None, to_date = None):
         raise Exception("Flight ID is required")
 
     if from_date is None and to_date is None:
-        # This is for flight rooster like functionality
+        # This is for flight rooster like functionality but provides operational dates
+        # from last one year up to next 8 months(future dates may vary)
         url = BASE_URL + f"flights/number/{flight_id}/dates"
     else:
         if from_date is not None and to_date is None:
@@ -201,12 +225,13 @@ def get_flight_schedules(flight_id, from_date = None, to_date = None):
             if not is_dates_in_order(from_date, to_date):
                 raise Exception("To date should be later than from date")
         url = BASE_URL + f"flights/number/{flight_id}/dates/{from_date}/{to_date}"
-    response = requests.get(url, headers=RAPID_API_HEADERS)
-    print(response.json())
+    dates_list = call_api(url)
+    print(dates_list)
 
 
 def get_flight_info(flight_id: str, date_str: str = get_current_date()):
-    """Flight API: Flight Status(single day)"""
+    """Flight API: Flight Status(single day)
+    This API provides more technical details about the flights travel. Not relevant for now"""
     url = BASE_URL + f"flights/number/{flight_id}/{date_str}"
     querystring = {"withAircraftImage": "false", "withLocation": "false", "dateLocalRole": "Departure"}
     response = requests.get(url,headers=RAPID_API_HEADERS, params= querystring)

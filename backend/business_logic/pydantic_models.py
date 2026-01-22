@@ -72,9 +72,9 @@ class RouteModel(BaseModel):
     dep_time: time
     arr_time: time
     airline: str
-    planetype: str
-    operates: str
-    validity: str
+    planetype: str | None
+    operates: str | None
+    validity: str | None
     orig_airport_details: AirportModel
     dest_airport_details: AirportModel
     model_config = {

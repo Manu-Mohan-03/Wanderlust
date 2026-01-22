@@ -5,9 +5,11 @@ from datetime import datetime
 
 from backend.database.orm_models import TripSchema, UserSchema
 from .pydantic_models import UserIn, UserOut, UserUpdate, TripIn, TripOut,TripUpdate, AirportModel, CityModel
-from backend.api_requests.aerodata_api import search_airports_by_location
+
 from backend.database.datamanager import UserRepository, TripRepository, AirportRepo
 
+import backend.api_requests.aerodata_api as aerodata
+import backend.api_requests.airlabs_api as airlabs
 
 class User:
     def __init__(self, user_obj: UserIn | UserOut, db_session):
@@ -211,7 +213,8 @@ def get_nearby_airports(db_session, latitude, longitude, radius=100):
     """
     # Using aerodata API
     airport_db = AirportRepo(db_session)
-    airport_keys = search_airports_by_location(latitude,longitude,radius)
+    airport_keys = aerodata.search_airports_by_location(
+        latitude,longitude,radius)
     if airport_keys:
         airports_list = airport_db.get_airports(airport_keys)
         return airports_list
@@ -239,19 +242,23 @@ def get_iata_code(db_session, iata_code, iata_type):
 
 def get_flights(
         db_session,
+        direction: str,
         from_airport: AirportModel | None = None,
         from_city: CityModel | None = None,
         to_airport: AirportModel | None = None,
         to_city: CityModel | None = None,
-        dep_timestamp: datetime | None = None,
-        arr_timestamp: datetime | None = None,
+        timestamp: datetime | None = None,
     ):
 
     if not(from_airport and from_city and to_airport and to_city):
         raise Exception("Either origin or destination is required!")
 
-    dep_time = dep_timestamp.time() if dep_timestamp is not None else None
-    arr_time = arr_timestamp.time() if arr_timestamp is not None else None
+    if direction == "Departure":
+        dep_time = timestamp.time() if timestamp is not None else None
+        arr_time = None
+    else:    # (Arrival)
+        arr_time = timestamp.time() if timestamp is not None else None
+        dep_time = None
 
     airport_db = AirportRepo(db_session)
     from_airports = []
@@ -269,7 +276,49 @@ def get_flights(
     routes = airport_db.get_airport_schedules(
         from_airports, to_airports, dep_time, arr_time
         )
-    return routes
+    if routes:
+        return routes
+    # Using Aerodata API
+    routes_list = []
+    if from_airports is None:
+        from_airports = [None]
+    else:
+        for from_airport in from_airports:
+            schedules = aerodata.get_airport_schedules(
+                from_airport,
+                direction,
+                timestamp.strftime("%Y-%m-%dT%H:%M")
+                )
+            routes_list.extend(schedules)
+
+    if to_airports is None:
+        to_airports = [None]
+    else:
+        for to_airport in to_airports:
+            schedules = aerodata.get_airport_schedules(
+                to_airport,
+                direction,
+                timestamp.strftime("%Y-%m-%dT%H:%M")
+                )
+            routes_list.extend(schedules)
+
+    if routes_list:
+        #Insert data to DB
+        routes = airport_db.add_routes(routes_list)
+        return routes
+
+    #Using Airlabs API
+    for from_airport in from_airports:
+        for to_airport in to_airports:
+            routes_list = airlabs.get_routes(from_airport, to_airport)
+    if routes_list:
+        routes = airport_db.add_routes(routes_list)
+        if timestamp:
+            routes = airport_db.get_airport_schedules(
+                from_airports, to_airports, dep_time, arr_time
+            )
+        return routes
+    return None
 
 
 
