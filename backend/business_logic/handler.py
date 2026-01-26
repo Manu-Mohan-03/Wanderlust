@@ -2,11 +2,13 @@
 import re
 
 from datetime import datetime
+from sqlalchemy.orm import Session
 
 from backend.database.orm_models import TripSchema, UserSchema
 from .pydantic_models import UserIn, UserOut, UserUpdate, TripIn, TripOut,TripUpdate, AirportModel, CityModel
 
 from backend.database.datamanager import UserRepository, TripRepository, AirportRepo
+from backend.utilities.where_is_waldo import get_location_from_ip
 
 import backend.api_requests.aerodata_api as aerodata
 import backend.api_requests.airlabs_api as airlabs
@@ -205,24 +207,61 @@ def delete_user_by_id(db_session, user_id: int):
     except ValueError:
         raise
 
-def get_nearby_airports(db_session, latitude, longitude, radius=100):
+def get_airports_by_location(db_object, latitude, longitude, radius=100):
+
+    if isinstance(db_object, Session):
+        airport_db = AirportRepo(db_object)
+    elif isinstance(db_object, AirportRepo):
+        airport_db = db_object
+    else:
+        raise ValueError("Cannot do a DB select to fetch the airports by location")
+    # Using Aerodata API
+    airport_keys = aerodata.search_airports_by_location(
+        latitude, longitude, radius)
+    if airport_keys:
+        airports_list = airport_db.get_airports(airport_keys)
+        return airports_list
+    # Using Database
+    airports_list = airport_db.get_airports_within_radius(latitude, longitude, radius)
+    if airports_list:
+        return airports_list
+    return None
+
+def find_nearby_airports(db_session, client_meta, radius=100):
     """To find the airports with in the radius of a specific location
     1. Use API
        a.
     2. Use Database Tables
     """
-    # Using aerodata API
     airport_db = AirportRepo(db_session)
-    airport_keys = aerodata.search_airports_by_location(
-        latitude,longitude,radius)
-    if airport_keys:
-        airports_list = airport_db.get_airports(airport_keys)
+    if client_meta.get("location"):
+        # Find airports based on location using API and DB
+        latitude = client_meta["location"][0]
+        longitude = client_meta["location"][1]
+        airports_list = get_airports_by_location(airport_db, latitude, longitude, radius)
         return airports_list
-    # Using Database
-    airports_list = airport_db.get_airports_within_radius(latitude, longitude,radius)
-    if airports_list:
-        return airports_list
+
+    if client_meta.get("ip"):
+        # Find airports based on ip using API directly , if not use function to get location based on IP and the DB to
+        # to find airports
+        client_ip = client_meta["ip"]
+        # Use aerodata first if not use get_location_from_ip function and if not DB
+        # Using Aerodata API
+        airport_keys = aerodata.search_airport_by_ip(client_ip)
+        if airport_keys:
+            airports_list = airport_db.get_airports(airport_keys)
+            return airports_list
+        try:
+            location = get_location_from_ip(client_ip)
+        except KeyError:
+            return None
+        if location:
+            latitude = location[0]
+            longitude = location[1]
+            airports_list = get_airports_by_location(airport_db, latitude, longitude, radius)
+            return airports_list
     return None
+
 
 def check_airport(db_session, airport):
     pass
@@ -305,6 +344,10 @@ def get_flights(
     if routes_list:
         #Insert data to DB
         routes = airport_db.add_routes(routes_list)
+        if from_airport and to_airport:
+            routes = airport_db.get_airport_schedules(
+                from_airports, to_airports, dep_time, arr_time
+            )
         return routes
 
     #Using Airlabs API

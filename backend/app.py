@@ -1,4 +1,5 @@
 import requests
+import uvicorn
 from fastapi import FastAPI
 from backend.routes.user_endpoints import router
 

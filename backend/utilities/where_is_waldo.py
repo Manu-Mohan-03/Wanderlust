@@ -13,11 +13,29 @@ def get_location_from_ip(ip_address):
 
     url = f"{BASE_URL}api_key={API_KEY}&ip_address={ip_address}"
     response = requests.get(url)
-    print(response.status_code)
-    location = float(response.json().get("location").get("latitude")) , \
-               float(response.json().get("location").get("longitude"))
+    if response.status_code != requests.codes.ok:
+        return None
+    try:
+        location = float(response.json()["location"]["latitude"]) , \
+                   float(response.json()["location"]["longitude"])
+        return location
+    except KeyError:
+        return None
 
-    return location
+def get_public_ip():
+    # Use service https://api.ipify.org  to find the public ip
+    try:
+        # api4.ipify provides IPv4 address
+        response = requests.get('https://api4.ipify.org', timeout=5)
+    except Exception:
+        raise ValueError("Unexpected behaviour while fetching public IP!")
+
+    if response.text:
+        return response.text
+    else:
+        # # Fallback to a known public IP if offline
+        return "8.8.8.8"
+
 
 async def get_location(
         request: Request,
@@ -32,7 +50,7 @@ async def get_location(
         except ValueError: # Malformed header
             pass
     if latitude and longitude:
-        return float(latitude), float(longitude)
+        return {"location": (float(latitude), float(longitude))}
 
     ip_addresses = request.headers.get("X-Forwarded-For")
     if ip_addresses:
@@ -41,14 +59,11 @@ async def get_location(
     else:
         # Fallback to the direct connection's IP
         client_ip = request.client.host if request.client else "127.0.0.1"
-
     # Handle local development check
     if client_ip in ("127.0.0.1", "::1"):
-       client_ip = "8.8.8.8"  # Hardcode for testing on localhost
-
-    try:
-        location = get_location_from_ip(client_ip)
-    except Exception:
-        return None
-    return location
+        #If the IP is localhost, swap it for your REAL public IP or a sample one
+        client_ip = get_public_ip()
+        #return should be a dictionary with location or ip address as key
+        return {"ip": client_ip}
+    return None
 

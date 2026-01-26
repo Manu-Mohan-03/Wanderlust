@@ -97,10 +97,14 @@ class AmadeusAPIClient:
         return response.json()
 
 
-    def get_relevant_nearby_airports(self, latitude, longitude):
+    def get_relevant_nearby_airports(self, latitude, longitude, radius):
         endpoint = "/reference-data/locations/airports"
-        airports = self.get_request(endpoint, latitude=latitude, longitude=longitude, radius=500)
-        print(airports)
+        response = self.get_request(endpoint, latitude=latitude, longitude=longitude, radius=radius)
+        airports_json = response.get("data")
+        if airports_json:
+            airports_list = [airport.get("iataCode") for airport in airports_json]
+            return airports_list
+        return None
 
 
     def get_location_by_freetext(self, freetext: str, country_code: str | None = None):
@@ -149,4 +153,5 @@ if __name__ == "__main__":
 
     # token = input("Enter token for testing the API: ")
     # api.set_token_for_testing(token)
-    api.get_routes_from_airport("DXB")
+    api.get_relevant_nearby_airports(12.95,77.46, radius=100)
+    #api.get_routes_from_airport("DXB")

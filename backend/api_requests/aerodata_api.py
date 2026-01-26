@@ -53,8 +53,6 @@ def search_airports_by_location(latitude,longitude,radius=100):
 
     response_json = call_api(url, querystring)
 
-    print(response_json)
-
     if response_json:
         airports_json = response_json.get("items")
         if airports_json:
@@ -66,14 +64,19 @@ def search_airports_by_location(latitude,longitude,radius=100):
     return None
 
 
-def search_airport_by_ip(ip_address, radius=50):
+def search_airport_by_ip(ip_address, radius=100):
     url = BASE_URL + "airports/search/ip"
 
     querystring = {"q": str(ip_address), "radiusKm": str(radius), "limit": "10", "withFlightInfoOnly": "true"}
 
     response_json = call_api(url, querystring)
 
-    print(response_json())
+    if response_json:
+        airports_json = response_json.get("items")
+        if airports_json:
+            airports_list = [ airport["iata"] for airport in airports_json if airport.get("iata")]
+            return airports_list
+    return None
 
 
 def search_airport_by_text(text):
@@ -240,5 +243,6 @@ def get_flight_info(flight_id: str, date_str: str = get_current_date()):
 if __name__ == "__main__":
     #get_airport_by_code("BLR")
     #search_airports_by_location(12.95,77.46, radius=500)
+    search_airport_by_ip("34.159.56.80")
     #get_flight_schedules("LH003", to_date="2025-12-25")
-    get_airport_schedules("BLR", "Departure", "2026-01-25T00:00")
+    #get_airport_schedules("BLR", "Departure", "2026-01-25T00:00")

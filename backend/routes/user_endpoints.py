@@ -6,7 +6,7 @@ from datetime import datetime
 from backend.business_logic.pydantic_models import (
     UserIn, UserOut, AirportModel, CityModel, RouteModel, TripIn, TripOut, TripUpdate, UserUpdate)
 from backend.business_logic.handler import (
-    User, Trip, get_user_data, get_nearby_airports, get_flights, get_iata_code, delete_trips_by_id,
+    User, Trip, get_user_data, find_nearby_airports, get_flights, get_iata_code, delete_trips_by_id,
     get_trip_data, delete_user_by_id)
 from backend.database.orm_models import SessionLocal
 
@@ -26,9 +26,15 @@ def get_from_sources(latitude: float, longitude: float):
     pass
 
 
-@router.get("/", response_model=list[AirportModel])
-async def home_page(
-        location: tuple | None = Depends(coordinates.get_location),
+@router.get("/")
+async def home_page():
+    return "Welcome to Wanderlust App!!!"
+
+
+
+@router.get("/default", response_model=list[AirportModel])
+async def default_page(
+        client_meta: dict | None = Depends(coordinates.get_location),
         db: Session = Depends(get_db)
     ):
     # Get the nearby airports based IP address or location permission
@@ -38,9 +44,8 @@ async def home_page(
     # use Remote Address (or Remote IP) header. Use a GeoIP Database to Resolve Location
     # The most common, reliable, and widely used tool for retrieving country and city from IP is MaxMind GeoLite2.
 
-    airports_list = get_nearby_airports(db,location[0], location[1])
+    airports_list = find_nearby_airports(db,client_meta)
     return airports_list
-
 
 @router.get("/{user_name}/", response_model=UserOut)
 async def user_signed_in(
@@ -57,7 +62,7 @@ async def user_signed_in(
 @router.get("/{user_id}/home/", response_model=AirportModel)
 async def user_home_page(
         user_id: int,
-        location: tuple | None = Depends(coordinates.get_location),
+        client_meta: tuple | None = Depends(coordinates.get_location),
         db: Session = Depends(get_db)
     ):
 
@@ -67,11 +72,11 @@ async def user_home_page(
     if user_data.city_details:
         location = (user_data.city_details.latitude, user_data.city_details.longitude)
 
-    airports_list = get_nearby_airports(db,location[0], location[1])
+    airports_list = find_nearby_airports(db,client_meta)
     return airports_list
 
 
-@router.get("/flights_of/{iata_code}/{iata_type}/", response_model=list[RouteModel])
+@router.get("/flights/{iata_code}/{iata_type}/", response_model=list[RouteModel])
 async def get_flight_routes(
         iata_code: str,
         iata_type: Literal["city","airport"],

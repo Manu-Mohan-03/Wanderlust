@@ -30,9 +30,14 @@ def get_countries():
 
 
 def get_nearby_airports(latitude, longitude, radius = 1):
-    url = f"{BASE_URL}nearby?lat={latitude}&lng={longitude}&distance={radius}api_key={API_KEY}"
-    airports_json = call_api(url)
-    print(airports_json)
+    url = f"{BASE_URL}nearby?lat={latitude}&lng={longitude}&distance={radius}&api_key={API_KEY}"
+    response = call_api(url)
+    airports_json = response.get("airports")
+    if airports_json:
+        airports_list = [airport.get("iata_code") for airport in airports_json if airport.get("iata_code")]
+        print(airports_list)
+        return airports_list
+    return None
 
 
 def auto_complete(freetext):
@@ -157,4 +162,7 @@ def call_api(url):
     response = requests.get(url)
     if response.status_code != requests.codes.ok:
         return None
-    return response.json()["response"]
+    return response.json().get("response")
+
+if __name__ == "__main__":
+    get_nearby_airports(12.95,77.46, 300)

@@ -76,8 +76,12 @@ class TripLeg(Base):
     )
 
     trip_header = relationship("TripSchema", back_populates="trip_details")
-    orig_city_details = relationship("City", back_populates="city_from")
-    dest_city_details = relationship("City", back_populates="city_to")
+    orig_city_details = relationship("City",
+                                     foreign_keys=[origin_city],
+                                     back_populates="city_from")
+    dest_city_details = relationship("City",
+                                     foreign_keys=[destination_city],
+                                     back_populates="city_to")
     flight_details = relationship(
         "LegFlight",
         back_populates="trip_details",
@@ -161,8 +165,12 @@ class City(Base):
     airports = relationship("Airport", back_populates="city")
     users = relationship("UserSchema", back_populates="city_details")
 
-    city_from = relationship("TripLeg", back_populates="orig_city_details")
-    city_to = relationship("TripLeg", back_populates="dest_city_details")
+    city_from = relationship("TripLeg",
+                             foreign_keys=[TripLeg.origin_city],
+                             back_populates="orig_city_details")
+    city_to = relationship("TripLeg",
+                           foreign_keys=[TripLeg.destination_city],
+                           back_populates="dest_city_details")
 
 class Airport(Base):
     __tablename__ = "airport"
