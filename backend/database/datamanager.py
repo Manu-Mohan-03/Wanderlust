@@ -1,18 +1,22 @@
 """Here contains classes and methods that directly uses the ORM models for CRUD operations"""
 from sqlalchemy.orm import Session
 from sqlalchemy import delete, func
+from sqlalchemy.orm.exc import NoResultFound
 from datetime import time
 
-from .orm_models import UserSchema, TripSchema, TripLeg, LegFlight, Airport, City, Schedules # SessionLocal
+from backend.database.orm_models import (
+    UserSchema, TripSchema, TripLeg, LegFlight, Airport, City, Schedules, SessionLocal)
 from backend.business_logic.pydantic_models import (
     UserIn, TripIn, TripOut, TripLegIn, LegFlightIn, LegFlightUpdate, TripLegUpdate, TripHeaderUpdate, UserUpdate)
 
 import math
 
-#db = Session()
+# db = Session()
 """
 
 """
+
+
 class SingletonMeta(type):
     """
     Meta Class, This is a factory class which creates other classes.
@@ -20,6 +24,7 @@ class SingletonMeta(type):
     inherited from type.
     """
     _instances = {}
+
     def __call__(cls, *args, **kwargs):
         """
         Normal methods of metaclasses will have cls as first parameter, not self
@@ -31,8 +36,8 @@ class SingletonMeta(type):
 
 
 class SessionManager(metaclass=SingletonMeta):
-    #Class Variable
-    #_db = SessionLocal()
+    # Class Variable
+    # _db = SessionLocal()
     def __init__(self, session: Session):
         self._session = session
 
@@ -50,6 +55,7 @@ class SessionManager(metaclass=SingletonMeta):
             msg = "Database operation Failed:"
             raise RuntimeError(f"{msg}{str(error)}") from error
 
+
 class UserRepository:
     def __init__(self, session: Session):
         self._db = SessionManager(session)
@@ -61,14 +67,14 @@ class UserRepository:
 
     def is_admin_user(self, user_name):
         # For admin users design is not to set same username
-        user = (
-            self.db.query(UserSchema)
-               .filter(UserSchema.username == user_name, UserSchema.role == "admin").all()
-        )
-        if user:
-            return True
-        return False
-
+        try:
+            user = (
+                self.db.query(UserSchema)
+                .filter(UserSchema.username == user_name, UserSchema.role == "admin").one()
+            )
+            return user
+        except NoResultFound:
+            return False
 
     def select_user_by_data(self, user_name: str, email: str | None = None):
 
@@ -78,9 +84,12 @@ class UserRepository:
                 .filter(UserSchema.username == user_name, UserSchema.email == email).one()
             )
         else:
+            user = self.is_admin_user(user_name)
+        # Below code is fallback code for testing. needs to be deleted
+        if not user:
             user = (
                 self.db.query(UserSchema)
-                .filter(UserSchema.username == user_name).one()
+                .filter(UserSchema.username == user_name).first()
             )
         return user
 
@@ -92,10 +101,10 @@ class UserRepository:
         user = UserSchema(**user_in.model_dump())
         self.db.add(user)
         self._db.commit()
-        #db_commit(self.db)
+        # db_commit(self.db)
         self.db.refresh(user)
 
-        return user #Return can be made separate pydantic model (UserOut) either here or in handler.py
+        return user  # Return can be made separate pydantic model (UserOut) either here or in handler.py
 
     def update_user(self, user_db: UserSchema, user_update: UserUpdate):
 
@@ -109,7 +118,7 @@ class UserRepository:
 
         return user_db
 
-    def delete_user(self, user_id:int):
+    def delete_user(self, user_id: int):
         """
         In Future can implement "Marked for deletion" can be implemented, but for User ID, it
         doesn't make much sense, it is better to delete it
@@ -127,8 +136,8 @@ class UserRepository:
             raise ValueError("User Not found!")
 
         self.db.delete(user)
-        #statement = delete(UserSchema).where(UserSchema.id == user.id)
-        #self.db.execute(statement)
+        # statement = delete(UserSchema).where(UserSchema.id == user.id)
+        # self.db.execute(statement)
         """ # Another way
         user_local = self.db.merge(user)
         self.db.delete(user_local)
@@ -150,11 +159,11 @@ class UserRepository:
     def delete_users(self):
         """Admin Method"""
         pass
+
     """  # If it is only TripSchema, it should be in Trip class not User class
     def delete_trips_of_user(self, trips: list[TripSchema]):
         pass
     """
-
 
 
 class TripRepository:
@@ -166,25 +175,25 @@ class TripRepository:
         """Read-only access for all subclasses."""
         return self._db.session
 
-    #def create_trip(self, trip_in: TripModel, commit:bool=False):
-    def create_trip(self, trip_in: TripIn, commit:bool=False):
+    # def create_trip(self, trip_in: TripModel, commit:bool=False):
+    def create_trip(self, trip_in: TripIn, commit: bool = False):
 
         trip_dict = trip_in.model_dump()
         trip = TripSchema()
         for field, value in trip_dict.items():
             if hasattr(trip, field):
                 setattr(trip, field, value)
-        #trip = TripSchema(**trip_in.model_dump())
+        # trip = TripSchema(**trip_in.model_dump())
         self.db.add(trip)
-        #self.db.flush() #Not needed as relationship is maintained and
-                         #properly instantiated using relationship trip_id will get value
+        # self.db.flush() #Not needed as relationship is maintained and
+        # properly instantiated using relationship trip_id will get value
 
         if commit:
             self._db.commit()
             self.db.refresh(trip)
         return trip
 
-    def change_trip(self,trip_db: TripSchema, changed_trip: TripHeaderUpdate, commit:bool=False):
+    def change_trip(self, trip_db: TripSchema, changed_trip: TripHeaderUpdate, commit: bool = False):
 
         new_trip = changed_trip.model_dump(exclude_unset=True)
         for field, value in new_trip:
@@ -196,8 +205,8 @@ class TripRepository:
             self.db.refresh(trip_db)
         return trip_db
 
-    #def delete_trip(self, trip: TripOut, commit:bool=False):
-    def delete_trip(self, trip_id: int, commit:bool=False):
+    # def delete_trip(self, trip: TripOut, commit:bool=False):
+    def delete_trip(self, trip_id: int, commit: bool = False):
         """
         Need to delete the corresponding entries from Legs tables
         """
@@ -212,13 +221,12 @@ class TripRepository:
         if commit:
             self._db.commit()
 
-
     def get_trip(self, trip_id: int):
 
         trip = self.db.get(TripSchema, trip_id)
         return trip
 
-    def modify_trip_leg(self, trip_leg_db: TripLeg, new_leg: TripLegUpdate, commit:bool=False):
+    def modify_trip_leg(self, trip_leg_db: TripLeg, new_leg: TripLegUpdate, commit: bool = False):
 
         new_leg_dict = new_leg.model_dump(exclude_unset=True)
         if new_leg_dict:
@@ -229,12 +237,12 @@ class TripRepository:
             self._db.commit()
         return trip_leg_db
 
-    def change_flight_in_trip(self, flight_db: LegFlight, new_flight: LegFlightUpdate, commit:bool=False):
+    def change_flight_in_trip(self, flight_db: LegFlight, new_flight: LegFlightUpdate, commit: bool = False):
 
         new_flight_dict = new_flight.model_dump(exclude_unset=True)
         if new_flight_dict:
             for field, value in new_flight_dict.items():
-                if hasattr(flight_db, field ):
+                if hasattr(flight_db, field):
                     setattr(flight_db, field, value)
 
         # merged_flight = self.db.merge(old_flight)
@@ -253,22 +261,22 @@ class TripRepository:
         if commit:
             self._db.commit()
 
-    def delete_flight_from_trip(self, flight: LegFlight, commit: bool=False):
+    def delete_flight_from_trip(self, flight: LegFlight, commit: bool = False):
 
         statement = (delete(LegFlight)
-                    .where(LegFlight.trip_id == flight.trip_id)
-                    .where(LegFlight.leg_no == flight.leg_no)
-        )
+                     .where(LegFlight.trip_id == flight.trip_id)
+                     .where(LegFlight.leg_no == flight.leg_no)
+                     )
         self.db.execute(statement)
         # self.db.delete(flight)
         if commit:
             self._db.commit()
 
-    def add_trip_leg(self, trip_db: TripSchema, leg_in: TripLegIn | TripLegUpdate, commit:bool=False):
+    def add_trip_leg(self, trip_db: TripSchema, leg_in: TripLegIn | TripLegUpdate, commit: bool = False):
 
         leg_dict = leg_in.model_dump()
         trip_leg = TripLeg(
-            trip_id= trip_db.trip_id
+            trip_id=trip_db.trip_id
         )
         for field, value in leg_dict.items():
             if hasattr(trip_leg, field):
@@ -282,12 +290,12 @@ class TripRepository:
 
         return trip_leg
 
-    def add_flight_to_trip(self, trip_leg_db: TripLeg, flight: LegFlightIn | LegFlightUpdate, commit:bool=False):
+    def add_flight_to_trip(self, trip_leg_db: TripLeg, flight: LegFlightIn | LegFlightUpdate, commit: bool = False):
 
         leg_flight = LegFlight(
-            trip_id= trip_leg_db.trip_id,
-            leg_no= trip_leg_db.leg_no,
-            flight_id= flight.flight_id
+            trip_id=trip_leg_db.trip_id,
+            leg_no=trip_leg_db.leg_no,
+            flight_id=flight.flight_id
         )
         self.db.add(leg_flight)
 
@@ -308,7 +316,7 @@ class TripRepository:
 
         leg_flight = self.db.get(LegFlight, (trip_id, leg_no))
         if leg_flight:
-            #return leg_flight
+            # return leg_flight
             return leg_flight.flight_id
         return None
 
@@ -319,6 +327,7 @@ class TripRepository:
             return db_object
         return None
 
+
 class AirportRepo:
     def __init__(self, session: Session):
         self._db = SessionManager(session)
@@ -328,7 +337,7 @@ class AirportRepo:
         """Read-only access for all subclasses."""
         return self._db.session
 
-    def get_airports_within_radius(self, centre_lat: float, centre_long: float, radius: int = 100 ):
+    def get_airports_within_radius(self, centre_lat: float, centre_long: float, radius: int = 100):
         # Rough bounding box (1 degree ≈ 111 km)
         earth_radius = 6371
 
@@ -340,12 +349,12 @@ class AirportRepo:
 
         distance = (
                 earth_radius * func.acos(
-                    func.cos(lat_rad)
-                    * func.cos(func.radians(Airport.latitude))
-                    * func.cos(func.radians(Airport.longitude) - lon_rad)
-                    + func.sin(lat_rad)
-                    * func.sin(func.radians(Airport.latitude))
-                )
+            func.cos(lat_rad)
+            * func.cos(func.radians(Airport.latitude))
+            * func.cos(func.radians(Airport.longitude) - lon_rad)
+            + func.sin(lat_rad)
+            * func.sin(func.radians(Airport.latitude))
+        )
         )
 
         query = (
@@ -397,7 +406,7 @@ class AirportRepo:
                 .filter(Schedules.dest_airport.in_(to_airports))
             )
         if dep_time:
-            query = query.filter(Schedules.dep_time >= dep_time )
+            query = query.filter(Schedules.dep_time >= dep_time)
         if arr_time:
             query = query.filter(Schedules.arr_time <= arr_time)
         routes = query.all()
@@ -405,7 +414,24 @@ class AirportRepo:
         return routes
 
     def add_routes(self, routes_list):
+        """This is an upsert case, but did not use on_conflict_do_update"""
         schedules: list[Schedules] = []
+        # List all the flight ids into a set to avoid duplicate keys
+        flights = {route["flight_id"] for route in routes_list}
+        # Fetch existing records from database
+        existing_flights_db = (
+            self.db.query(Schedules)
+            .filter(Schedules.flight_id.in_(flights))
+            .all()
+        )
+        existing_flights = [flight.flight_id for flight in existing_flights_db]
+        # Delete the existing records
+        # The below logic should be modified so that if the entry exist in DB donot insert, instead of
+        # deleting and reinserting(The below logic is because DB data is outdated, but API is
+        # more upto date)
+        if existing_flights_db:
+            self.delete_routes(existing_flights_db)
+        # Add new records
         for route in routes_list:
             schedule = Schedules(**route)
             self.db.add(schedule)
@@ -418,6 +444,18 @@ class AirportRepo:
             self.db.refresh(schedule)
         return schedules
 
+    def delete_routes(self, flight_list: list[Schedules] ):
+        for flight_db in flight_list:
+            self.db.delete(flight_db)
+        # Another option
+        # flight_ids = [flight_db.flight_id for flight_db in flight_list]
+        # (self.db.query(Schedules).filter(Schedules.flight_id.in_(flight_ids))
+        #  .delete(synchronize_session=False))
+        try:
+            self._db.commit()
+        except Exception:
+            raise
+
 """
 def db_commit(session):
     """"""To save the Database Updates to underlying database""""""
@@ -428,3 +466,15 @@ def db_commit(session):
         msg = "Database operation Failed:"
         raise RuntimeError(f"{msg}{str(error)}") from error
 """
+if __name__ == "__main__":
+    with SessionLocal() as session_local:
+        airport_db = AirportRepo(session_local)
+        airport_db.add_routes([{
+            "flight_id":"Q2707",
+            "orig_airport": "COK",
+            "dest_airport": "MLE",
+            "status": "active",
+            "dep_time": "12:30",
+            "arr_time": "13:30",
+            "airline": "Q2",
+        }])

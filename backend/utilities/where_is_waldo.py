@@ -26,12 +26,15 @@ def get_public_ip():
     # Use service https://api.ipify.org  to find the public ip
     try:
         # api4.ipify provides IPv4 address
-        response = requests.get('https://api4.ipify.org', timeout=5)
+        #response = requests.get('https://api4.ipify.org', timeout=5)
+        response_text = "34.159.56.80"
     except Exception:
         raise ValueError("Unexpected behaviour while fetching public IP!")
 
-    if response.text:
-        return response.text
+    # if response.text:
+    #     return response.text
+    if response_text:
+        return response_text
     else:
         # # Fallback to a known public IP if offline
         return "8.8.8.8"

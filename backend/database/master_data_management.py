@@ -71,6 +71,8 @@ def add_routes():
             if package < 1000: #For testing
                 break
 
+def testing():
+    pass
 
 def clear_cities_table():
     with orm_models.SessionLocal() as session:

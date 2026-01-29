@@ -31,7 +31,6 @@ async def home_page():
     return "Welcome to Wanderlust App!!!"
 
 
-
 @router.get("/default", response_model=list[AirportModel])
 async def default_page(
         client_meta: dict | None = Depends(coordinates.get_location),
@@ -47,7 +46,7 @@ async def default_page(
     airports_list = find_nearby_airports(db,client_meta)
     return airports_list
 
-@router.get("/{user_name}/", response_model=UserOut)
+@router.get("/user/", response_model=UserOut)
 async def user_signed_in(
             user_name: str,
             db: Session = Depends(get_db)
@@ -89,7 +88,7 @@ async def get_flight_routes(
     """direction is either departure/arrival"""
     #1 First check whether code is city/airport
     from_object = to_object = from_airport = to_airport = from_city = to_city = None
-    if mode == "dep":
+    if mode == "Departure":
         from_object = get_iata_code(db,iata_code, iata_type)
         if from_or_to:
             to_object = get_iata_code(db, from_or_to, ft_type)
@@ -114,8 +113,9 @@ async def get_flight_routes(
         to_city,
         local_time,
         )
-
-    return routes
+    if routes:
+        return routes
+    return []
 
 
 @router.post("/trip/", response_model=TripOut)

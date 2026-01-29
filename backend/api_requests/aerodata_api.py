@@ -8,6 +8,7 @@ with dep time and arrival time for any date in future
 import requests
 import os
 from dotenv import load_dotenv
+from pprint import pprint
 from pydantic import TypeAdapter
 
 from backend.business_logic.pydantic_models import AirportModel
@@ -161,7 +162,7 @@ def get_airport_schedules(
     else:
         schedules_json = response_json.get("arrivals")
 
-    routes_list = [
+    routes_crude_list = [
         {
             "flight_id": route.get("number").replace(" ", ""),
             "orig_airport": airport_id,
@@ -174,6 +175,10 @@ def get_airport_schedules(
         for route in schedules_json
         if route.get("number")
     ]
+    # Removing Duplicates
+    routes_list = list(
+        {route["flight_id"]: route for route in routes_crude_list}.values()
+    )
     return routes_list
 
 def get_flight_duration(source, destination):
@@ -243,6 +248,6 @@ def get_flight_info(flight_id: str, date_str: str = get_current_date()):
 if __name__ == "__main__":
     #get_airport_by_code("BLR")
     #search_airports_by_location(12.95,77.46, radius=500)
-    search_airport_by_ip("34.159.56.80")
+    #search_airport_by_ip("34.159.56.80")
     #get_flight_schedules("LH003", to_date="2025-12-25")
-    #get_airport_schedules("BLR", "Departure", "2026-01-25T00:00")
+    get_airport_schedules("COK", "Departure") #, "2026-01-25T00:00")

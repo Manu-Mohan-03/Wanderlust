@@ -288,8 +288,8 @@ def get_flights(
         to_city: CityModel | None = None,
         timestamp: datetime | None = None,
     ):
-
-    if not(from_airport and from_city and to_airport and to_city):
+    #print(f"{from_airport=},{from_city=},{to_airport=},{to_city=}")
+    if not from_airport and not from_city and not to_airport and not to_city:
         raise Exception("Either origin or destination is required!")
 
     if direction == "Departure":
@@ -317,6 +317,10 @@ def get_flights(
         )
     if routes:
         return routes
+
+    if timestamp:
+        timestamp = timestamp.strftime("%Y-%m-%dT%H:%M")
+
     # Using Aerodata API
     routes_list = []
     if from_airports is None:
@@ -326,7 +330,7 @@ def get_flights(
             schedules = aerodata.get_airport_schedules(
                 from_airport,
                 direction,
-                timestamp.strftime("%Y-%m-%dT%H:%M")
+                timestamp
                 )
             routes_list.extend(schedules)
 
@@ -337,7 +341,7 @@ def get_flights(
             schedules = aerodata.get_airport_schedules(
                 to_airport,
                 direction,
-                timestamp.strftime("%Y-%m-%dT%H:%M")
+                timestamp
                 )
             routes_list.extend(schedules)
 
@@ -349,7 +353,7 @@ def get_flights(
                 from_airports, to_airports, dep_time, arr_time
             )
         return routes
-
+    return None
     #Using Airlabs API
     for from_airport in from_airports:
         for to_airport in to_airports:
