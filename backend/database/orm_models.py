@@ -1,6 +1,6 @@
 """This program defines all the DB ORM models used for the project"""
 import psycopg2
-
+import os
 from sqlalchemy import (create_engine, Column, Integer, String, Numeric, Boolean, ForeignKey, DateTime,
                         Time, func, text, ForeignKeyConstraint)
 from sqlalchemy.orm import DeclarativeBase, sessionmaker, relationship, Mapped, mapped_column
@@ -10,6 +10,12 @@ from decimal import Decimal
 
 
 def get_db_url():
+    """If in cloud use the internal url provided by the host else try to connect to postgre SQL
+    locally"""
+    db_url = os.getenv("DATABASE_URL")
+    if db_url:
+        return db_url
+    # Fall back to local if no environment variable exist
     # The format is: dialect+driver://user:password@host:port/database_name
     pgsql = load_config()
     if type(pgsql) is dict:
