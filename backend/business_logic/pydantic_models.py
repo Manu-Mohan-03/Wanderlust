@@ -229,3 +229,35 @@ class UserUpdate(BaseModel):
     dark_mode: bool = False
     map_mode: bool = False
     date_tolerance: int | None = None
+
+
+class AllCountryModel(BaseModel):
+    country_key: str
+    name: str
+    model_config = {
+        "from_attributes": True,
+        "extra": "ignore"
+    }
+
+
+class AllCityModel(BaseModel):
+    name: str
+    country_key: str
+    timezone: str
+    country: AllCountryModel
+    model_config = {
+        "from_attributes": True,
+        "extra": "ignore"
+    }
+
+class AllAirportModel(BaseModel):
+    airport_key: str
+    name: str
+    city_key: str | None
+    latitude: float
+    longitude: float
+    city: AllCityModel | None
+    model_config = {
+        "from_attributes": True,
+        "extra": "ignore"
+    }

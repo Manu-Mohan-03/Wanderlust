@@ -149,6 +149,7 @@ def check_before_save_user(role, email: str | None = None):
 
     return True
 
+
 def is_email_valid(email_id):
     # Regular expression for validating an Email
     regex = r'^[a-z0-9]+[._]?[a-z0-9]+[@]\w+[.]\w+$'
@@ -156,6 +157,7 @@ def is_email_valid(email_id):
         return True
     else:
         return False
+
 
 def get_user_data(
         db_session,
@@ -174,6 +176,14 @@ def get_user_data(
         user = user_db.select_user_by_data(username)
         return user
     return None
+
+
+def get_all_airports(
+        db_session
+    ):
+    airport_db = AirportRepo(db_session)
+    all_airports = airport_db.get_all_airports()
+    return all_airports
 
 
 def get_trip_data(
@@ -207,6 +217,7 @@ def delete_user_by_id(db_session, user_id: int):
     except ValueError:
         raise
 
+
 def get_airports_by_location(db_object, latitude, longitude, radius=100):
 
     if isinstance(db_object, Session):
@@ -226,6 +237,7 @@ def get_airports_by_location(db_object, latitude, longitude, radius=100):
     if airports_list:
         return airports_list
     return None
+
 
 def find_nearby_airports(db_session, client_meta, radius=100):
     """To find the airports with in the radius of a specific location
@@ -266,6 +278,7 @@ def find_nearby_airports(db_session, client_meta, radius=100):
 def check_airport(db_session, airport):
     pass
 
+
 def get_iata_code(db_session, iata_code, iata_type):
     """Check whether IATA code is a city/airport"""
     airport_db = AirportRepo(db_session)
@@ -278,6 +291,7 @@ def get_iata_code(db_session, iata_code, iata_type):
         if city:
             return CityModel.model_validate(city)
     return None
+
 
 def get_flights(
         db_session,

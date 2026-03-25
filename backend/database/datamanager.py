@@ -1,6 +1,6 @@
 """Here contains classes and methods that directly uses the ORM models for CRUD operations"""
 from sqlalchemy.orm import Session
-from sqlalchemy import delete, func
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm.exc import NoResultFound
 from datetime import time
 
@@ -377,6 +377,13 @@ class AirportRepo:
         if airports:
             return airports
         return None
+
+    def get_all_airports(self):
+        # stmt = select(Airport)
+        # result = self.db.execute(stmt)
+        # airports = result.scalars().all()
+        airports = self.db.scalars(select(Airport)).all()
+        return airports
 
     def get_city(self, code):
         city = self.db.get(City, code)

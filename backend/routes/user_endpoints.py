@@ -4,10 +4,10 @@ from typing import Literal
 from datetime import datetime
 #from pydantic import BaseModel
 from backend.business_logic.pydantic_models import (
-    UserIn, UserOut, AirportModel, CityModel, RouteModel, TripIn, TripOut, TripUpdate, UserUpdate)
+    UserIn, UserOut, AirportModel, CityModel, RouteModel, TripIn, TripOut, TripUpdate, UserUpdate, AllAirportModel)
 from backend.business_logic.handler import (
     User, Trip, get_user_data, find_nearby_airports, get_flights, get_iata_code, delete_trips_by_id,
-    get_trip_data, delete_user_by_id)
+    get_trip_data, delete_user_by_id, get_all_airports)
 from backend.database.orm_models import SessionLocal
 
 import backend.utilities.where_is_waldo as coordinates
@@ -58,7 +58,7 @@ async def user_signed_in(
     return user
 
 
-@router.get("/{user_id}/home/", response_model=AirportModel)
+@router.get("/{user_id}/home/", response_model=list[AirportModel])
 async def user_home_page(
         user_id: int,
         client_meta: tuple | None = Depends(coordinates.get_location),
@@ -73,6 +73,15 @@ async def user_home_page(
 
     airports_list = find_nearby_airports(db,client_meta)
     return airports_list
+
+
+@router.get("/airports", response_model=list[AllAirportModel])
+async def get_airports(
+        db: Session = Depends(get_db)
+    ):
+    airports = get_all_airports(db)
+    #print("Airports",airports)
+    return airports
 
 
 @router.get("/flights/{iata_code}/{iata_type}/", response_model=list[RouteModel])
