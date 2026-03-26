@@ -24,6 +24,8 @@ function MapView() {
     const { airports, airportsLoading } = useAirports()
     // Initail View state for Deck GL
     const [viewState, setViewState] = useState(INITIAL_VIEW)
+    // To display airport details on hovering over dots
+    const [hoveredAirport, setHoveredAirport] = useState(null)  // { id, name, city, country, x, y }
 
 
     // ── Deck.gl layers ────────────────────────────────────────────   
@@ -36,7 +38,11 @@ function MapView() {
             getRadius: 6000, // one cover 6 km radius on actual earth
             radiusMinPixels: 3, // 
             radiusMaxPixels: 10,
-            getFillColor: [30, 100, 255]
+            getFillColor: [30, 100, 255],
+            pickable: true,
+            onHover: ({ object, x, y }) => {
+                setHoveredAirport(object ? { ...object, x, y } : null)
+            }
         })
     ]
 
@@ -58,6 +64,16 @@ function MapView() {
                 <Map mapStyle={MAP_STYLE} />
             </DeckGL>
 
+            {/* Airport tooltip */}
+            {hoveredAirport && (
+                <div 
+                    className='tooltip'
+                    style={{ left: hoveredAirport.x + 12, top: (hoveredAirport.y - 10) + 130 }} // 130 px is the size of header
+                >
+                    <strong>{hoveredAirport.id}</strong>
+                    <span className='tooltip-sub'>{hoveredAirport.city}, {hoveredAirport.country}</span>
+                </div>
+            )}
         </div>
     )
 }

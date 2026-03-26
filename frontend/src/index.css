@@ -33,6 +33,7 @@ h1 {
   width: 100vw; 
   height: 100vh; 
   position: relative;
+
   .loadingBadge {
     position: absolute;
     top: 16px;
@@ -47,6 +48,26 @@ h1 {
     z-index: 1000;
     box-shadow: var(--shadow);
   }
+  .tooltip {
+    position: fixed;
+    background: rgba(15, 23, 42, 0.9);
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    pointer-events: none;
+    z-index: 1500;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-width: 200px;
+
+    .tooltip-sub {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+    }    
+  }  
+
 }
 
 /* a {
