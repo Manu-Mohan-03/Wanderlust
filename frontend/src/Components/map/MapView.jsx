@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import Map from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -19,13 +19,21 @@ const INITIAL_VIEW = {
     bearing: 0,
 }
 
-function MapView() {
+export default function MapView() {
+
     // To get all the required airports from backend
     const { airports, airportsLoading } = useAirports()
     // Initail View state for Deck GL
     const [viewState, setViewState] = useState(INITIAL_VIEW)
     // To display airport details on hovering over dots
     const [hoveredAirport, setHoveredAirport] = useState(null)  // { id, name, city, country, x, y }
+    // for airport click
+    const [selectedAirport, setSelectedAirport] = useState(null)  
+
+    // ── Airport click ──────────────────────────────────────────────
+    const handleAirportClick = useCallback((airport) => {
+            setSelectedAirport(airport)
+    }, [selectedAirport])
 
 
     // ── Deck.gl layers ────────────────────────────────────────────   
@@ -38,11 +46,17 @@ function MapView() {
             getRadius: 6000, // one cover 6 km radius on actual earth
             radiusMinPixels: 3, // 
             radiusMaxPixels: 10,
-            getFillColor: [30, 100, 255],
+            getFillColor: d => d.id === selectedAirport?.id
+                ? [255, 140, 0]   // selected — orange
+                : [30, 100, 255], // default — blue
             pickable: true,
             onHover: ({ object, x, y }) => {
                 setHoveredAirport(object ? { ...object, x, y } : null)
-            }
+            },
+            onClick: ({ object }) => object && handleAirportClick(object),
+            updateTriggers: {
+                getFillColor: [selectedAirport?.id]
+            },            
         })
     ]
 
@@ -60,13 +74,17 @@ function MapView() {
                 controller={true}
                 layers={layers}
                 style={{ position: 'absolute', inset: 0 }}
+                getCursor={({ isHovering, isDragging }) => {
+                    if (isHovering)   return 'pointer'
+                    return 'grab'
+                }}                
             >
                 <Map mapStyle={MAP_STYLE} />
             </DeckGL>
 
             {/* Airport tooltip */}
             {hoveredAirport && (
-                <div 
+                <div
                     className='tooltip'
                     style={{ left: hoveredAirport.x + 12, top: (hoveredAirport.y - 10) + 130 }} // 130 px is the size of header
                 >
@@ -77,5 +95,3 @@ function MapView() {
         </div>
     )
 }
-
-export default MapView
