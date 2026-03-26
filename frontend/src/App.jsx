@@ -1,12 +1,10 @@
+import MapPage from "./pages/MapPage"
 
 
-function App() {
-
-  return (
-    <>
-      <h1>Welcome to Wanderlust</h1>
-    </>
+export default function App() {
+  return (<>
+            <h1>Welcome to Wanderlust</h1>
+            <MapPage />
+          </>
   )
 }
-
-export default App
