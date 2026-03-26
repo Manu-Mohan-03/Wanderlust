@@ -34,8 +34,9 @@ function MapView() {
             data: airports,
             getPosition: d => [d.longitude, d.latitude], // d is each airport from airports
             getRadius: 6000, // one cover 6 km radius on actual earth
-            radiusMinPixels: 4, // 
+            radiusMinPixels: 3, // 
             radiusMaxPixels: 10,
+            getFillColor: [30, 100, 255]
         })
     ]
 

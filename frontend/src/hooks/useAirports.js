@@ -24,11 +24,9 @@ export function useAirports() {
         async function getAirports() {
             try {
                 const data = await airportAPI.getAll()
-                console.log('Raw airports response:', data)
                 const tier1 = data
                     .filter(airport => airport.tier === 1)
                     .map(normalise)
-                console.log('Tier 1 airports after filter:', tier1)  // ← add    
                 setAirports(tier1)
                 
             } catch (err) {
