@@ -188,7 +188,7 @@ class Airport(Base):
     latitude: Mapped[Decimal] = mapped_column(Numeric)
     #longitude = Column(Numeric)
     longitude: Mapped[Decimal] = mapped_column(Numeric)
-
+    tier = Column(Integer, nullable=True)
     city = relationship("City", back_populates="airports")
     airlines = relationship("Airline", back_populates="hub")
 

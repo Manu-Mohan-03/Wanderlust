@@ -253,6 +253,7 @@ class AllCityModel(BaseModel):
 class AllAirportModel(BaseModel):
     airport_key: str
     name: str
+    tier: int | None = None
     city_key: str | None
     latitude: float
     longitude: float

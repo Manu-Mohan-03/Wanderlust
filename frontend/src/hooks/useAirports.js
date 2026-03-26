@@ -1,4 +1,6 @@
-import { airportAPI }          from '../services/api'
+
+import { useState, useEffect } from 'react'
+import { airportAPI } from '../services/api'
 
 // Normalise raw API response to a flat shape MapView needs
 function normalise(raw) {
@@ -13,29 +15,33 @@ function normalise(raw) {
     }
 }
 
-export function useAirports(){
+export function useAirports() {
     const [airports, setAirports] = useState([])   // all tier-1 airports
-    const [loading,  setLoading]  = useState(true)
-    const [error,    setError]    = useState(null)
-    
-    useEffect(()=>{
-        async function getAirports(){
-            try{
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+
+    useEffect(() => {
+        async function getAirports() {
+            try {
                 const data = await airportAPI.getAll()
+                console.log('Raw airports response:', data)
                 const tier1 = data
-                                .filter(airport => airport.tier === 1)
-                                .map(normalise)
-                setAirports(tier1)                
-            } catch (err){
+                    .filter(airport => airport.tier === 1)
+                    .map(normalise)
+                console.log('Tier 1 airports after filter:', tier1)  // ← add    
+                setAirports(tier1)
+                
+            } catch (err) {
                 setError('Failed to load airports')
-                console.error(err)                
+                console.error(err)
             } finally {
                 setLoading(false)
             }
         }
         getAirports()
-    },[])
-    return { airports, loading, error }
+    }, [])
+
+    return { airports, airportsloading: loading, error }
 }
 
 /* Sample API Data 

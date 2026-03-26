@@ -29,6 +29,26 @@ h1 {
   line-height: 1.1;
 }
 
+.map-view{
+  width: 100vw; 
+  height: 100vh; 
+  position: relative;
+  .loadingBadge {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    z-index: 1000;
+    box-shadow: var(--shadow);
+  }
+}
+
 /* a {
   font-weight: 500;
   color: #646cff;
