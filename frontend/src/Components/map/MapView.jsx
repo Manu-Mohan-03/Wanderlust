@@ -3,11 +3,12 @@ import Map from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 // import { DeckGL } from '@deck.gl/react'
-import { ScatterplotLayer } from '@deck.gl/layers'
+import { ScatterplotLayer, ArcLayer } from '@deck.gl/layers'
 import DeckGL from '@deck.gl/react'
 
 import { useAirports } from '../../hooks/useAirports'
-
+import { useRoutes } from '../../hooks/useRoutes'
+import ContextMenu from './ContextMenu';
 
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'
 
@@ -29,15 +30,31 @@ export default function MapView() {
     const [hoveredAirport, setHoveredAirport] = useState(null)  // { id, name, city, country, x, y }
     // for airport click
     const [selectedAirport, setSelectedAirport] = useState(null)  
+    // for flight routes
+    const { routes, fetchRoutes } = useRoutes()
 
     // ── Airport click ──────────────────────────────────────────────
     const handleAirportClick = useCallback((airport) => {
-            setSelectedAirport(airport)
-    }, [selectedAirport])
+        setSelectedAirport(airport)
+        fetchRoutes(airport.id)        
+    }, [selectedAirport, fetchRoutes])
 
 
     // ── Deck.gl layers ────────────────────────────────────────────   
     const layers = [
+
+        // 1. Available routes (from selected airport)
+        new ArcLayer({
+            id: 'available-routes',
+            data: routes,
+            getSourcePosition: d => [d.from.longitude, d.from.latitude],
+            getTargetPosition: d => [d.to.longitude, d.to.latitude],
+            getSourceColor: [100, 160, 255, 120],
+            getTargetColor: [100, 160, 255, 120],
+            getWidth: 1.5,
+            greatCircle: true,
+        }),
+
         // Airport markers
         new ScatterplotLayer({
             id: 'airports',
@@ -63,6 +80,7 @@ export default function MapView() {
     return (
         <div
             className='map-view'
+            // onContextMenu={<ContextMenu/>}
         >
             {/* Loading indicator */}
             {airportsLoading && (
