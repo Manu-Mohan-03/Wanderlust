@@ -70,6 +70,29 @@ h1 {
 
 }
 
+.context-menu {
+  position: fixed;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  z-index: 2000;
+  overflow: hidden;
+  min-width: 180px;
+  .item {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    color: var
+  }
+}
+
+
 /* a {
   font-weight: 500;
   color: #646cff;

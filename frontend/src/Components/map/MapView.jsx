@@ -122,6 +122,7 @@ export default function MapView() {
                 <ContextMenu
                     x={contextMenu.x}
                     y={contextMenu.y}
+                    onClose={() => setContextMenu(null)}
                 />
             )}
         </div>
