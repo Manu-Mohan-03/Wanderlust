@@ -32,6 +32,8 @@ export default function MapView() {
     const [selectedAirport, setSelectedAirport] = useState(null)  
     // for flight routes
     const { routes, fetchRoutes } = useRoutes()
+    // For ContextMenu the right Click
+    const [contextMenu, setContextMenu] = useState(null)  // { x, y }
 
     // ── Airport click ──────────────────────────────────────────────
     const handleAirportClick = useCallback((airport) => {
@@ -39,6 +41,10 @@ export default function MapView() {
         fetchRoutes(airport.id)        
     }, [selectedAirport, fetchRoutes])
 
+    function handleContextMenu(e){
+        e.preventDefault()
+        setContextMenu({ x: e.clientX, y: e.clientY })
+    }
 
     // ── Deck.gl layers ────────────────────────────────────────────   
     const layers = [
@@ -80,7 +86,7 @@ export default function MapView() {
     return (
         <div
             className='map-view'
-            // onContextMenu={<ContextMenu/>}
+            onContextMenu={handleContextMenu}
         >
             {/* Loading indicator */}
             {airportsLoading && (
@@ -109,6 +115,14 @@ export default function MapView() {
                     <strong>{hoveredAirport.id}</strong>
                     <span className='tooltip-sub'>{hoveredAirport.city}, {hoveredAirport.country}</span>
                 </div>
+            )}
+
+            {/* Right-click context menu */}
+            {contextMenu && (
+                <ContextMenu
+                    x={contextMenu.x}
+                    y={contextMenu.y}
+                />
             )}
         </div>
     )

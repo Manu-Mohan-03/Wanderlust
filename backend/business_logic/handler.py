@@ -368,6 +368,9 @@ def get_flights(
             )
         return routes
     return None
+    # if routes_list:
+    #     print(routes_list)
+    # return None
     #Using Airlabs API
     for from_airport in from_airports:
         for to_airport in to_airports:
