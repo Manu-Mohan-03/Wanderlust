@@ -31,7 +31,7 @@ export default function MapView() {
     // for airport click
     const [selectedAirport, setSelectedAirport] = useState(null)  
     // for flight routes
-    const { routes, fetchRoutes } = useRoutes()
+    const { routes, fetchRoutes, clearRoutes } = useRoutes()
     // For ContextMenu the right Click
     const [contextMenu, setContextMenu] = useState(null)  // { x, y }
 
@@ -45,6 +45,11 @@ export default function MapView() {
         e.preventDefault()
         setContextMenu({ x: e.clientX, y: e.clientY })
     }
+
+    const handleClearAll = useCallback(() => {
+        clearRoutes()
+        setSelectedAirport(null)
+    }, [clearRoutes])
 
     // ── Deck.gl layers ────────────────────────────────────────────   
     const layers = [
@@ -122,6 +127,7 @@ export default function MapView() {
                 <ContextMenu
                     x={contextMenu.x}
                     y={contextMenu.y}
+                    onClearAll={handleClearAll}
                     onClose={() => setContextMenu(null)}
                 />
             )}

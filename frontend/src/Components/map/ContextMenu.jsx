@@ -26,6 +26,7 @@ export default  function ContextMenu({ x, y, onClearAll, onClose }) {
             <button
                 className='item'
                 onClick={() => {
+                    onClearAll()
                     onClose()
                 }}
             >

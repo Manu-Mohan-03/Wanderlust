@@ -40,7 +40,9 @@ export function useRoutes() {
         }
     }, [])
 
-    return { routes, loading, error, fetchRoutes }
+    const clearRoutes = () => setRoutes([])
+
+    return { routes, loading, error, fetchRoutes, clearRoutes }
 
 }
 
