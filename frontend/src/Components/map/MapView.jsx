@@ -66,8 +66,8 @@ export default function MapView() {
             getTargetColor: [100, 160, 255, 120],
             getWidth: 1.5,
             greatCircle: true,
+            pickable: true,
             onHover: ({ object, x, y }) => {
-                console.log("Hovering Route")
                 setHoveredRoute(object
                     ? { label: `${object.from.id} → ${object.to.id}`, x, y }
                     : null
@@ -133,8 +133,7 @@ export default function MapView() {
 
             {/* Route tooltip */}
             {hoveredRoute && (
-                <div  className='tooltip' style={{ left: hoveredRoute.x + 12, top: (hoveredAirport.y - 10) + 130 }}>
-                    {console.log(hoveredRoute)}
+                <div  className='tooltip' style={{ left: hoveredRoute.x + 12, top: (hoveredRoute.y - 10) + 130 }}>
                     <strong>{hoveredRoute.label}</strong>
                 </div>
             )}            
