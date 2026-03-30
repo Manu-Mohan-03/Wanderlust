@@ -36,6 +36,8 @@ export default function MapView() {
     const [contextMenu, setContextMenu] = useState(null)  // { x, y }
     // For Route details on hover
     const [hoveredRoute, setHoveredRoute] = useState(null)  // { label, x, y }
+    // For Route Selection
+    const [ selectedRoute, setSelectedRoute] = useState(null)
 
     // ── Airport click ──────────────────────────────────────────────
     const handleAirportClick = useCallback((airport) => {
@@ -52,6 +54,12 @@ export default function MapView() {
         clearRoutes()
         setSelectedAirport(null)
     }, [clearRoutes])
+
+    // ── Route click — select a specific flight path ────────────────
+    const handleRouteClick = useCallback((route) => {
+        if (!selectedAirport) return
+        setSelectedRoute([route])
+    },[selectedAirport, selectedRoute])
 
     // ── Deck.gl layers ────────────────────────────────────────────   
     const layers = [
@@ -72,7 +80,20 @@ export default function MapView() {
                     ? { label: `${object.from.id} → ${object.to.id}`, x, y }
                     : null
                 )
-            },            
+            },
+            onClick: ({ object }) => object && handleRouteClick(object),           
+        }),
+
+        // 2. Selected trip arc
+        new ArcLayer({
+            id: 'selected-route',
+            data: selectedRoute,
+            getSourcePosition: d => [d.from.longitude, d.from.latitude],
+            getTargetPosition: d => [d.to.longitude, d.to.latitude],
+            getSourceColor: [255, 140, 0, 220],
+            getTargetColor: [255, 60, 60, 220],
+            getWidth: 3,
+            greatCircle: true,
         }),
 
         // Airport markers
