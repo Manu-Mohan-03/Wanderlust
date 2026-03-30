@@ -28,13 +28,17 @@ BASE_URL = "https://aerodatabox.p.rapidapi.com/"
 
 def call_api(url,params=None):
 
-    if params:
-        response = requests.get(url, headers=RAPID_API_HEADERS, params=params)
-    else:
-        response = requests.get(url, headers=RAPID_API_HEADERS)
-    if response.status_code != requests.codes.ok:
-        return None
-    return response.json()
+    try:
+        if params:
+            response = requests.get(url, headers=RAPID_API_HEADERS, params=params)
+        else:
+            response = requests.get(url, headers=RAPID_API_HEADERS)
+        if response.status_code != requests.codes.ok:
+            raise Exception(f"API Error: {response.json().get('message')}")
+        return response.json()
+    except requests.exceptions.RequestException as error:
+        # Raised for network errors, timeouts, etc.
+        raise Exception(f"Request failed: {error}") from error
 
 
 def get_airport_by_code(code):
@@ -134,7 +138,8 @@ def get_airport_schedules(
         airport_id,
         direction="Departure",
         from_time = None,
-        time_period = 1440):
+        time_period = 720   # API supports a maximum of 12 hours only
+    ):
     """ Flight API: airport departures and arrivals
     To get the scheduled departures/arrivals from an airport with in a local time range
     :param airport_id:
@@ -166,10 +171,8 @@ def get_airport_schedules(
         schedules_json = response_json.get("departures")
     else:
         schedules_json = response_json.get("arrivals")
-    # for route in schedules_json:
-    #     print(route)
-    #     arr_time = parse_time(route.get("arrival").get("scheduledTime").get("local"))
-    #     print(arr_time)
+    if schedules_json is None:
+        return None
     routes_crude_list = [
         {
             "flight_id": route.get("number").replace(" ", ""),
@@ -259,5 +262,5 @@ if __name__ == "__main__":
     #search_airports_by_location(12.95,77.46, radius=500)
     #search_airport_by_ip("34.159.56.80")
     #get_flight_schedules("LH003", to_date="2025-12-25")
-    get_airport_schedules("COK", "Departure") #, "2026-01-25T00:00")
-    # routes_from_airport('COK') # the result wont show departure and arrival time
+    get_airport_schedules("KRK", "Departure") #, "2026-01-25T00:00")
+    # routes_from_airport('COK') # the result won't show departure and arrival time

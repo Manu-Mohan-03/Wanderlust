@@ -34,6 +34,8 @@ export default function MapView() {
     const { routes, fetchRoutes, clearRoutes } = useRoutes()
     // For ContextMenu the right Click
     const [contextMenu, setContextMenu] = useState(null)  // { x, y }
+    // For Route details on hover
+    const [hoveredRoute, setHoveredRoute] = useState(null)  // { label, x, y }
 
     // ── Airport click ──────────────────────────────────────────────
     const handleAirportClick = useCallback((airport) => {
@@ -64,6 +66,13 @@ export default function MapView() {
             getTargetColor: [100, 160, 255, 120],
             getWidth: 1.5,
             greatCircle: true,
+            onHover: ({ object, x, y }) => {
+                console.log("Hovering Route")
+                setHoveredRoute(object
+                    ? { label: `${object.from.id} → ${object.to.id}`, x, y }
+                    : null
+                )
+            },            
         }),
 
         // Airport markers
@@ -121,6 +130,14 @@ export default function MapView() {
                     <span className='tooltip-sub'>{hoveredAirport.city}, {hoveredAirport.country}</span>
                 </div>
             )}
+
+            {/* Route tooltip */}
+            {hoveredRoute && (
+                <div  className='tooltip' style={{ left: hoveredRoute.x + 12, top: (hoveredAirport.y - 10) + 130 }}>
+                    {console.log(hoveredRoute)}
+                    <strong>{hoveredRoute.label}</strong>
+                </div>
+            )}            
 
             {/* Right-click context menu */}
             {contextMenu && (

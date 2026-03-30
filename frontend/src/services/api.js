@@ -6,10 +6,20 @@ async function request(method, path){
         method,
         headers: {'Content-Type': 'application/json'}
     })
-    if (!res.ok) throw new Error(`API error: ${res.status}`)    
+    if (!res.ok) {
+
+        let message = `API error: ${res.status}`
+        try{
+            const error = await res.json()
+            if (error.detail){
+                message = error.detail
+            } 
+        } catch (e){} // Keep default message
+        throw new Error(message)    
+    }
     // const data = await res.json()
     // return data
-    // anyway the calling function will be using await as this is an asnc function
+    // anyway the calling function will be using await as this is an async function
     return res.json() 
 }
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Literal
 from datetime import datetime
@@ -113,19 +113,22 @@ async def get_flight_routes(
         to_airport = to_object
     elif isinstance(to_object, CityModel):
         to_city = to_object
-    routes = get_flights(
-        db,
-        mode,
-        from_airport,
-        from_city,
-        to_airport,
-        to_city,
-        local_time,
-        )
-    if routes:
-        return routes
-    return []
 
+    try:
+        routes = get_flights(
+            db,
+            mode,
+            from_airport,
+            from_city,
+            to_airport,
+            to_city,
+            local_time,
+            )
+        if routes:
+            return routes
+        return []
+    except Exception as error:
+        raise HTTPException(status_code=502, detail=str(error))
 
 @router.post("/trip/", response_model=TripOut)
 async def create_trips(

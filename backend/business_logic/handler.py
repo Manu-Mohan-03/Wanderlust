@@ -346,7 +346,8 @@ def get_flights(
                 direction,
                 timestamp
                 )
-            routes_list.extend(schedules)
+            if schedules:
+                routes_list.extend(schedules)
 
     if to_airports is None:
         to_airports = [None]
@@ -357,7 +358,8 @@ def get_flights(
                 direction,
                 timestamp
                 )
-            routes_list.extend(schedules)
+            if schedules:
+                routes_list.extend(schedules)
 
     if routes_list:
         #Insert data to DB
