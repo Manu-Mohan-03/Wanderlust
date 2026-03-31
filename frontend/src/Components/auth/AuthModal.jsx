@@ -7,11 +7,14 @@ export default function AuthModal({ onClose }) {
     const [ password, setPassword ] = useState('')
     const [ loading, setLoading ]  = useState(false)
     // By default give the option to sign in
-    const [isLogin, setIsLogin]  = useState(true)
+    const [ isLogin, setIsLogin ]  = useState(true)
+    const [ error, setError ]      = useState(null)
 
     function handleSubmit(){
+        setError(null)
         setLoading(true)
         try{
+            throw new Error("Wrong Password") 
             onClose()
         } catch(error) {
             setError(error.message || 'Something went wrong')
@@ -38,7 +41,8 @@ export default function AuthModal({ onClose }) {
                     placeholder='Password'
                     value={password}
                     onChange={ e => setPassword(e.target.value) }
-                />                
+                />    
+                {error && <p className='error'>{error}</p>}            
                 <button 
                     className='submit-btn'
                     onClick={handleSubmit}
@@ -50,7 +54,10 @@ export default function AuthModal({ onClose }) {
                     {isLogin ? "Don't have an account? " : 'Already have an account? '}
                     <span
                         className='toggle-link'
-                        onClick={() => { setIsLogin(!isLogin) }}
+                        onClick={() => { 
+                            setIsLogin(!isLogin) 
+                            setError(null)
+                        }}
                     >
                         {isLogin ? 'Sign Up' : 'Sign In'}
                     </span>
