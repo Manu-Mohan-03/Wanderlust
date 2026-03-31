@@ -158,6 +158,35 @@ h1 {
     flex-direction: column;
     gap: 12px;
     box-shadow: var(--shadow);
+
+    .title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .input {
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+      outline: none;
+      color: var(--text-primary);
+      background-color: var(--bg-secondary);
+    }  
+    
+    .submit-btn {
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      background-color: var(--accent);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 4px;
+    }    
   }
 }
 
