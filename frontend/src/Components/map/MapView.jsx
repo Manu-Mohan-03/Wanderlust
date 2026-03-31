@@ -59,6 +59,8 @@ export default function MapView() {
     const handleClearAll = useCallback(() => {
         clearRoutes()
         setSelectedAirport(null)
+        setSelectedRoute([])
+        setHistoryRoute([])
     }, [clearRoutes])
 
     // ── Route click — select a specific flight path ────────────────
