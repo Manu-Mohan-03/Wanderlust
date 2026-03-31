@@ -19,8 +19,9 @@ export default function Header() {
                     </button>
                 </div>
             </header>
-            {/* Login/SignUp modal — only mounts when needed */}
-            {showModal && <AuthModal />}
+            {/* Login/SignUp modal — only mounts when needed, onClose prop to close the modal on clicking 
+                any where on the overlay */}
+            {showModal && <AuthModal onClose={() => setShowModal(false)}/>}
        </>
     )
 }
