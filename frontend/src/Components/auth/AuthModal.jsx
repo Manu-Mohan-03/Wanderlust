@@ -6,6 +6,8 @@ export default function AuthModal({ onClose }) {
     const [ email, setEmail ] = useState('')
     const [ password, setPassword ] = useState('')
     const [ loading, setLoading ]  = useState(false)
+    // By default give the option to sign in
+    const [isLogin, setIsLogin]  = useState(true)
 
     function handleSubmit(){
         setLoading(true)
@@ -22,7 +24,7 @@ export default function AuthModal({ onClose }) {
         <div className='backdrop' onClick={onClose}>  
             {/* Modal — stop click propagating to backdrop, so that clicking any where on modal donot close it */}
             <div className='modal' onClick={e => e.stopPropagation()}>
-                <h2 className='title'>Sign In / Create Account</h2>
+                <h2 className='title'>{isLogin ? 'Sign In' : 'Create Account'}</h2>
                 <input
                     className='input' 
                     type="text" 
@@ -42,8 +44,17 @@ export default function AuthModal({ onClose }) {
                     onClick={handleSubmit}
                     disabled={loading}
                 >
-                    Sign In
+                    {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Sign Up'}
                 </button>
+                <p className='toggle'>
+                    {isLogin ? "Don't have an account? " : 'Already have an account? '}
+                    <span
+                        className='toggle-link'
+                        onClick={() => { setIsLogin(!isLogin) }}
+                    >
+                        {isLogin ? 'Sign Up' : 'Sign In'}
+                    </span>
+                </p>
             </div>
         </div>
     )
