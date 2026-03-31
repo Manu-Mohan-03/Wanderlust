@@ -184,7 +184,9 @@ def get_airport_schedules(
             "airline": route.get("airline").get("iata"),
         }
         for route in schedules_json
-        if route.get("number") is not None and route.get("arrival").get("scheduledTime") is not None
+        if route.get("number") is not None and
+           route.get("arrival").get("scheduledTime") is not None and
+           route.get('codeshareStatus') == "IsOperator"
     ]
 
     # Removing Duplicates

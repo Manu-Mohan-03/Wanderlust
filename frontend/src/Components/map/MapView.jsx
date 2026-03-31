@@ -37,13 +37,19 @@ export default function MapView() {
     // For Route details on hover
     const [hoveredRoute, setHoveredRoute] = useState(null)  // { label, x, y }
     // For Route Selection
-    const [ selectedRoute, setSelectedRoute] = useState(null)
+    const [ selectedRoute, setSelectedRoute] = useState([])
+    const [ historyRoute, setHistoryRoute] = useState([])
 
     // ── Airport click ──────────────────────────────────────────────
     const handleAirportClick = useCallback((airport) => {
+        if (airport === selectedAirport) return
         setSelectedAirport(airport)
-        fetchRoutes(airport.id)        
-    }, [selectedAirport, fetchRoutes])
+        fetchRoutes(airport.id) 
+        if (selectedRoute){
+            // add leg
+            setHistoryRoute(selectedRoute)
+        }       
+    }, [selectedAirport, fetchRoutes, selectedRoute])
 
     function handleContextMenu(e){
         e.preventDefault()
@@ -58,8 +64,8 @@ export default function MapView() {
     // ── Route click — select a specific flight path ────────────────
     const handleRouteClick = useCallback((route) => {
         if (!selectedAirport) return
-        setSelectedRoute([route])
-    },[selectedAirport, selectedRoute])
+        setSelectedRoute([...historyRoute, route])
+    },[selectedAirport, historyRoute])
 
     // ── Deck.gl layers ────────────────────────────────────────────   
     const layers = [
