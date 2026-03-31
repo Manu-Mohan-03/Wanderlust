@@ -138,6 +138,29 @@ h1 {
   }
 
 }
+/*Overlay/Backdrop for modal dialog box*/
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .modal {
+    background-color: var(--bg-primary);
+    border-radius: 12px;
+    padding: 32px;
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: var(--shadow);
+  }
+}
+
 
 /* a {
   font-weight: 500;
