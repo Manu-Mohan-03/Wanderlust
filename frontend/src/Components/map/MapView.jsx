@@ -153,7 +153,7 @@ export default function MapView() {
             {hoveredAirport && (
                 <div
                     className='tooltip'
-                    style={{ left: hoveredAirport.x + 12, top: (hoveredAirport.y - 10) + 130 }} // 130 px is the size of header
+                    style={{ left: hoveredAirport.x + 12, top: hoveredAirport.y }} 
                 >
                     <strong>{hoveredAirport.id}</strong>
                     <span className='tooltip-sub'>{hoveredAirport.city}, {hoveredAirport.country}</span>
@@ -162,7 +162,7 @@ export default function MapView() {
 
             {/* Route tooltip */}
             {hoveredRoute && (
-                <div  className='tooltip' style={{ left: hoveredRoute.x + 12, top: (hoveredRoute.y - 10) + 130 }}>
+                <div  className='tooltip' style={{ left: hoveredRoute.x + 12, top: hoveredRoute.y + 15 }}>
                     <strong>{hoveredRoute.label}</strong>
                 </div>
             )}            

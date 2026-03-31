@@ -71,7 +71,7 @@ class RouteModel(BaseModel):
     status: str | None
     dep_time: time
     arr_time: time
-    airline: str
+    airline: str | None
     planetype: str | None
     operates: str | None
     validity: str | None
