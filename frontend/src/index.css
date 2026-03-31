@@ -34,7 +34,7 @@ h1 {
   height: 100vh; 
   position: relative;
 
-  .loadingBadge {
+  .loading-badge {
     position: absolute;
     top: 16px;
     left: 50%;

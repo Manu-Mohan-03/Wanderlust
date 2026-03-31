@@ -39,7 +39,7 @@ export function useAirports() {
         getAirports()
     }, [])
 
-    return { airports, airportsloading: loading, error }
+    return { airports, airportsLoading: loading, error }
 }
 
 /* Sample API Data 
