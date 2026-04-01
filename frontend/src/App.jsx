@@ -5,6 +5,8 @@ import Header from './components/layout/Header'
 import AuthContext from "./context/AuthContext"
 
 import { BrowserRouter, Routes, Route } from 'react-router'
+import AccountPage from "./pages/AccountPage"
+import TripsPage from "./pages/TripsPage"
 
 export default function App() {
   return (
@@ -16,6 +18,8 @@ export default function App() {
             <main style={{ flex: 1, overflow: 'hidden' }}> 
               <Routes>
                 <Route path='/' element={<MapPage />}/>
+                <Route path='/account' element={<AccountPage/>}/>
+                <Route path='/trips' element={<TripsPage />}/>
               </Routes>             
             </main>
           </div>
