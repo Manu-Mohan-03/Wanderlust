@@ -221,7 +221,7 @@ h1 {
     }
   }
 }
-/*Overlay/Backdrop for modal dialog box*/
+/*Overlay/Backdrop for Login/Signin Modal dialog box*/
 .backdrop {
   position: fixed;
   inset: 0;
@@ -291,6 +291,16 @@ h1 {
     }
 
   }
+}
+/*Seperate CSS for Trip Save Modal*/
+.trip-save-modal {
+  position: relative;
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 36px 32px 28px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
 
 

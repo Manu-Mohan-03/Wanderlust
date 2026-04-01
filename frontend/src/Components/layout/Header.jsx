@@ -3,13 +3,17 @@ import { useNavigate } from 'react-router'
 
 import AuthModal    from '../auth/AuthModal'
 import { AuthDetails } from '../../context/AuthContext'
+import TripSaveModal from '../trips/TripSaveModal'
 
 
 export default function Header() {
     // To display dialog box for signing in
-    const [showModal, setShowModal] = useState(false)
+    const [ showAuthModal, setShowAuthModal ] = useState(false)
     // Toggle Menu for user details
     const [ menuOpen, setMenuOpen ] = useState(false)
+    // To display dialog box for saving
+    const [ showSaveModal, setShowSaveModal ] = useState(false)
+    // For Authentication 
     const { user, logout } = useContext(AuthDetails)    
     const navigate = useNavigate()
     const menuRef = useRef(null)
@@ -26,6 +30,7 @@ export default function Header() {
     }
     function handleSaveClick(){
         setMenuOpen(false)
+        setShowSaveModal(true)
     }
 
     // Close dropdown if user clicks outside
@@ -94,16 +99,17 @@ export default function Header() {
 
                         </div>
                     ) : (
-                        <button className="login-button" onClick={() => setShowModal(true)}>
+                        <button className="login-button" onClick={() => setShowAuthModal(true)}>
                             Sign In
                         </button>
                     )}                  
                 </div>
             </header>
 
-            {/* Login/SignUp modal — only mounts when needed, onClose prop to close the modal on clicking 
-                any where on the overlay */}
-            {showModal && <AuthModal onClose={() => setShowModal(false)}/>}
+            {/* Login/SignUp modal —onClose prop to close the modal on clicking any where on the overlay */}
+            {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)}/>}
+            {/*To Save the trips Selected*/}
+            {showSaveModal && <TripSaveModal onClose={() => setShowSaveModal(false)}/>}    
        </>
     )
 }
