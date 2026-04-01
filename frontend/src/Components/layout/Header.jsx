@@ -24,6 +24,9 @@ export default function Header() {
         setMenuOpen(false)
         navigate('/')
     }
+    function handleSaveClick(){
+        setMenuOpen(false)
+    }
 
     // Close dropdown if user clicks outside
     useEffect(() => {
@@ -74,6 +77,10 @@ export default function Header() {
                                     </button>
                                     <button className='dropdown-item' onClick={() => goTo('/trips')}>
                                         🗺️ My Trips
+                                    </button>
+                                    <hr className='divider' />
+                                    <button className='dropdown-item' onClick={handleSaveClick}>
+                                        💾 Save Trip
                                     </button>
                                     <hr className='divider' />
                                     <button
