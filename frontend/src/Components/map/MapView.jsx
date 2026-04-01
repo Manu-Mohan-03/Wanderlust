@@ -176,6 +176,13 @@ export default function MapView() {
                     onClose={() => setContextMenu(null)}
                 />
             )}
+
+            {/* Selected legs counter */}
+            {selectedRoute.length > 0 && (
+                <div className='legs-badge'>
+                    {selectedRoute.length} leg{selectedRoute.length > 1 ? 's' : ''} selected
+                </div>
+            )}            
         </div>
     )
 }

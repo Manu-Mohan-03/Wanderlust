@@ -27,8 +27,7 @@ export function useAirports() {
                 const tier1 = data
                     .filter(airport => airport.tier === 1)
                     .map(normalise)
-                setAirports(tier1)
-                
+                setAirports(tier1)                
             } catch (err) {
                 setError('Failed to load airports')
                 console.error(err)
