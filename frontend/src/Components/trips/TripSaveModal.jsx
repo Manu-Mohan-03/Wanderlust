@@ -1,10 +1,34 @@
+import { useState } from "react"
+
 export default function TripSaveModal({ onClose }) {
-  return (
-    <div className="backdrop" style={{ zIndex: 3000, backdropFilter: 'blur(2px)' }} onClick={onClose}>
-        <div className="trip-save-modal">
-            <h2>For Saving Trip Legs</h2>
+
+    const [ name, setName ] = useState('')
+
+    return (
+        <div className="backdrop" style={{ zIndex: 3000, backdropFilter: 'blur(2px)' }}>
+            <div className="trip-save-modal">
+                <button className='close-button' onClick={onClose}>✕</button>
+                <h2 className='title'>Save Trip</h2>
+                <p className='sub-title'>Give your trip a name (optional)</p>
+                <input
+                    className='input'
+                    type="text"
+                    placeholder="e.g. Euro Summer 2026"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                />  
+                <div className='actions'>
+                    <button className='cancel-button' onClick={onClose}>
+                        Cancel
+                    </button>
+                    <button
+                        className="save-button"
+                    >
+                        💾 Save Trip
+                    </button>
+                </div>                      
+            </div>
         </div>
-    </div>
-  )
+    )
 }
 
