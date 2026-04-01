@@ -2,13 +2,10 @@ import React from 'react'
 import MapView from '../components/map/MapView'
 
 
-function MapPage() {
+export default function MapPage() {
   return (
-    <>
-        <div>MapPage</div>
+    <div style={{ width: '100%', height: '100%' }}>
         <MapView />
-    </> 
+    </div>
   )
 }
-
-export default MapPage

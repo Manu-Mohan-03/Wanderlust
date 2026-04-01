@@ -19,9 +19,12 @@ export default function Header() {
                 {/* Right — Login Button*/}
                 <div className='right'>
                     {user ? (
-                        <button className="btn" onClick={logout}>
-                            Sign Out
-                        </button>                        
+                        <> 
+                            <span className='user-email'>{user.email}</span>
+                            <button className="btn" onClick={logout}>
+                                Sign Out
+                            </button>                        
+                        </>
                     ) : (
                         <button className="btn" onClick={() => setShowModal(true)}>
                             Sign In
