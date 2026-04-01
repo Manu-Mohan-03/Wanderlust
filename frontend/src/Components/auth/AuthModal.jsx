@@ -1,5 +1,5 @@
-import { useState } from 'react'
-
+import { useContext, useState } from 'react'
+import { AuthDetails } from '../../context/AuthContext'
 
 export default function AuthModal({ onClose }) {
 
@@ -9,12 +9,18 @@ export default function AuthModal({ onClose }) {
     // By default give the option to sign in
     const [ isLogin, setIsLogin ]  = useState(true)
     const [ error, setError ]      = useState(null)
+    // For authorization
+    const {login, register} = useContext(AuthDetails)
 
     function handleSubmit(){
         setError(null)
         setLoading(true)
         try{
-            throw new Error("Wrong Password") 
+            if (isLogin){
+                login(email,password)            
+            } else {
+                register(email,password)
+            }
             onClose()
         } catch(error) {
             setError(error.message || 'Something went wrong')
