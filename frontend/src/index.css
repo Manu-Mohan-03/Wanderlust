@@ -93,10 +93,11 @@ h1 {
 }
 /*For the Header Component*/
 .header {
-  position: fixed;
-  top: 0;
+  /*Change 1*/
+  /* position: fixed; */
+  /* top: 0;
   left: 0;
-  right: 0;
+  right: 0; */
   z-index: 1000;
   height: 56px;
   display: flex;
@@ -106,31 +107,42 @@ h1 {
   background-color: var(--bg-primary);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow);
+  /*Change 1*/
+  flex-shrink: 0;
 
   .logo {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 20px;
+    /*Change 1*/
+    /* font-size: 20px; */
+    cursor: pointer;
+    user-select: none;
 
     .logo-text {
       font-weight: 700;
       color: var(--text-primary);
-      letter-spacing: -0.3px;
+      /*Change 1*/
+      /* letter-spacing: -0.3px;*/
     }
   }
 
   .right {
     display: flex;
     align-items: center;
-    gap: 12px;
+    /*Change 1*/
+    /* gap: 12px; */
 
-    .btn {
-      padding: 8px 16px;
+    .login-button {
+      /*Change 1*/
+      /* padding: 8px 16px; */
+      padding: 8px 20px;
       border-radius: 6px;
       border: none;
-      background-color: var(--accent);
-      color: #ffffff;
+      /* background-color: var(--accent); */
+      background: var(--accent);
+      /* color: #ffffff; */
+      color: #fff;
       font-weight: 600;
       font-size: 14px;
       cursor: pointer;
@@ -139,8 +151,61 @@ h1 {
       font-size: 14px;
       color: var(--text-secondary);
     }
-  }
+    /*New*/
+    .usermenu{
+      position: relative;
 
+      .icon-button {
+        font-size: 22px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 6px;
+      }    
+
+      .dropdown {
+        position: absolute;
+        top: 40px;
+        right: 0;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        min-width: 200px;
+        z-index: 2000;
+        overflow: hidden;
+
+        .dropdown-header {
+          padding: 12px 16px;
+
+          .dropdownEmail {
+            font-size: 13px;
+            color: var(--text-secondary);
+          }
+        }
+        .divider {
+          margin: 0;
+          border: none;
+          border-top: 1px solid var(--border);
+        }
+        .dropdown-item {
+          display: block;
+          width: 100%;
+          padding: 10px 16px;
+          background: none;
+          border: none;
+          text-align: left;
+          cursor: pointer;
+          font-size: 14px;
+          color: var(--text-primary);
+        }
+        .signout-item {
+          color: #ef4444;
+        }
+      }
+    }
+  }
 }
 /*Overlay/Backdrop for modal dialog box*/
 .backdrop {
