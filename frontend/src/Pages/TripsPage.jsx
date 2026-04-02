@@ -1,4 +1,7 @@
 
+import { useNavigate } from 'react-router'
+
+
 // Temporary Test Data for building and Unit Testing of Trips Page
 const TRIPS = [{
   user_id: 7,
@@ -20,13 +23,23 @@ const TRIPS = [{
 }]
 
 export default function TripsPage() {
+
+    const navigate = useNavigate()
+
+    function handleLoad(trip){
+        navigate('/')
+    }
+    function handleDelete(trip){
+        // To be implemented
+    }
+
     return (
         <div className="trips-page">    
             {/* Seperate Div to seperate background and content*/}
             <div className='container'>      
                 <div className="page-header">
                     <h1 className="title">My Trips</h1>
-                    <button className="back-button">
+                    <button className="back-button" onClick={() => navigate('/')}>
                         ← Back to Map
                     </button>
                 </div>
@@ -57,10 +70,10 @@ export default function TripsPage() {
                             </div>
                             {/* User Actions */}
                             <div className="card-actions">
-                                <button className="load-button">
+                                <button className="load-button" onClick={()=>handleLoad(trip)}>
                                     🗺️ Load on Map        
                                 </button> 
-                                <button className="delete-button">
+                                <button className="delete-button" onClick={() => handleDelete(trip)}>
                                     🗑️        
                                 </button>       
                             </div>
