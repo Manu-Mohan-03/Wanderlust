@@ -101,7 +101,6 @@ export default function Header() {
                                     </button>
                                 </div>
                             )}
-
                         </div>
                     ) : (
                         <button className="login-button" onClick={() => setShowAuthModal(true)}>

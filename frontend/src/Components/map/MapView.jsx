@@ -57,6 +57,14 @@ export default function MapView() {
         // }       
     }, [selectedAirport, fetchRoutes]) //, selectedRoute])
 
+    // ── Route click — select a specific flight path ────────────────
+    const handleRouteClick = useCallback((route) => {
+        if (!selectedAirport) return
+        if(route === selectedRoute) return // Onclicking same route again do nothing for now
+        // setSelectedRoute([...historyRoute, route])
+        addLeg({ from: route.from, to: route.to, flightId: route.flightId })
+    },[selectedAirport]) // ,historyRoute])    
+
     function handleContextMenu(e){
         e.preventDefault()
         setContextMenu({ x: e.clientX, y: e.clientY })
@@ -70,12 +78,7 @@ export default function MapView() {
         clearAll()
     }, [clearRoutes])
 
-    // ── Route click — select a specific flight path ────────────────
-    const handleRouteClick = useCallback((route) => {
-        if (!selectedAirport) return
-        // setSelectedRoute([...historyRoute, route])
-        addLeg({ from: route.from, to: route.to, flightId: route.flightId })
-    },[selectedAirport]) // ,historyRoute])
+
 
     // ── Deck.gl layers ────────────────────────────────────────────   
     const layers = [
@@ -169,7 +172,7 @@ export default function MapView() {
             )}
 
             {/* Route tooltip */}
-            {hoveredRoute && (
+            {hoveredRoute && !hoveredAirport && (
                 <div  className='tooltip' style={{ left: hoveredRoute.x + 12, top: hoveredRoute.y + 15 }}>
                     <strong>{hoveredRoute.label}</strong>
                 </div>

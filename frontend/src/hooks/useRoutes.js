@@ -29,6 +29,7 @@ export function useRoutes() {
 
     const fetchRoutes = useCallback(async (airportId) => {
         setLoading(true)
+        setError(null)
         try {
             const data = await airportAPI.getRoutes(airportId)
             setRoutes(data.filter(r => r.status === 'active').map(normalise))
