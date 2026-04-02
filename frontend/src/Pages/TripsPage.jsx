@@ -1,5 +1,8 @@
 
+import { useContext } from 'react'
 import { useNavigate } from 'react-router'
+import { TripDetails } from '../context/TripContext'
+import { toTripLegs }        from '../hooks/useTrips'
 
 
 // Temporary Test Data for building and Unit Testing of Trips Page
@@ -25,8 +28,11 @@ const TRIPS = [{
 export default function TripsPage() {
 
     const navigate = useNavigate()
+    const { loadTrip } = useContext(TripDetails)
 
     function handleLoad(trip){
+        const legs = toTripLegs(trip)
+        loadTrip(legs)
         navigate('/')
     }
     function handleDelete(trip){
