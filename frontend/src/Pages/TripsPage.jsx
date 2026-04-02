@@ -21,50 +21,53 @@ const TRIPS = [{
 
 export default function TripsPage() {
     return (
-        <div className="trips-page">            
-            <div className="page-header">
-                <h1 className="title">My Trips</h1>
-                <button className="back-button">
-                    ← Back to Map
-                </button>
-            </div>
-            <div className="grid">
-                {TRIPS.map(trip => (
-                    <div key = {trip.trip_id} className="card">
-                        {/* Card header */}
-                        <div className="card-header">
-                            <span className="trip-name">
-                                {trip.name}
-                            </span>
+        <div className="trips-page">    
+            {/* Seperate Div to seperate background and content*/}
+            <div className='container'>      
+                <div className="page-header">
+                    <h1 className="title">My Trips</h1>
+                    <button className="back-button">
+                        ← Back to Map
+                    </button>
+                </div>
+                <div className="grid">
+                    {TRIPS.map(trip => (
+                        <div key = {trip.trip_id} className="card">
+                            {/* Card header */}
+                            <div className="card-header">
+                                <span className="trip-name">
+                                    {trip.name}
+                                </span>
+                            </div>
+                            {/* Legs list */}
+                            <div className="legs-list">
+                                {trip.trip_legs.map(leg => (
+                                    <div key={leg.leg_no} className="leg-row">
+                                        <span className="leg-seq">{leg.leg_no}</span>
+                                        <span className="leg-route">
+                                            {leg.origin_city}
+                                            {' → '}
+                                            {leg.destination_city}                                        
+                                        </span>
+                                        <span className="leg-flight">
+                                            {leg.flight.flight_id}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                            {/* User Actions */}
+                            <div className="card-actions">
+                                <button className="load-button">
+                                    🗺️ Load on Map        
+                                </button> 
+                                <button className="delete-button">
+                                    🗑️        
+                                </button>       
+                            </div>
                         </div>
-                        {/* Legs list */}
-                        <div className="legs-list">
-                            {trip.trip_legs.map(leg => (
-                                <div key={leg.leg_no} className="leg-row">
-                                    <span className="leg-seq">{leg.leg_no}</span>
-                                    <span className="leg-route">
-                                        {leg.origin_city}
-                                        {' → '}
-                                        {leg.destination_city}                                        
-                                    </span>
-                                    <span className="leg-flight">
-                                        {leg.flight.flight_id}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                        {/* User Actions */}
-                        <div className="card-action">
-                            <button className="load-button">
-                                🗺️ Load on Map        
-                            </button> 
-                            <button className="delete-button">
-                                🗑️        
-                            </button>       
-                        </div>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            </div>  
         </div>
     )
 }
