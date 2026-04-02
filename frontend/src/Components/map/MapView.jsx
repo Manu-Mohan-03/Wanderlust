@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useContext } from 'react'
 import Map from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -8,7 +8,8 @@ import DeckGL from '@deck.gl/react'
 
 import { useAirports } from '../../hooks/useAirports'
 import { useRoutes } from '../../hooks/useRoutes'
-import ContextMenu from './ContextMenu';
+import ContextMenu from './ContextMenu'
+import { TripDetails } from '../../context/TripContext'
 
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'
 
@@ -30,26 +31,31 @@ export default function MapView() {
     const [hoveredAirport, setHoveredAirport] = useState(null)  // { id, name, city, country, x, y }
     // for airport click
     const [selectedAirport, setSelectedAirport] = useState(null)  
-    // for flight routes
+    // To get the flight routes from backend
     const { routes, fetchRoutes, clearRoutes } = useRoutes()
     // For ContextMenu the right Click
     const [contextMenu, setContextMenu] = useState(null)  // { x, y }
     // For Route details on hover
     const [hoveredRoute, setHoveredRoute] = useState(null)  // { label, x, y }
-    // For Route Selection
-    const [ selectedRoute, setSelectedRoute] = useState([])
-    const [ historyRoute, setHistoryRoute] = useState([])
+    // For Route Selection - selectedRoute holds the current airports route which user selected
+    // user is free to change it
+    // history routes are the ones user already selected, it is for now will be fixed
+    // const [ selectedRoute, setSelectedRoute] = useState([])
+    // const [ historyRoute, setHistoryRoute] = useState([])
+    // Since the display of a route can also be done by loading a trip from my trips we need 
+    // populate the route details from a context - TripContext
+    const { currentLeg: selectedRoute, addLeg, clearAll } = useContext(TripDetails)
 
     // ── Airport click ──────────────────────────────────────────────
     const handleAirportClick = useCallback((airport) => {
         if (airport === selectedAirport) return
         setSelectedAirport(airport)
         fetchRoutes(airport.id) 
-        if (selectedRoute){
-            // add leg
-            setHistoryRoute(selectedRoute)
-        }       
-    }, [selectedAirport, fetchRoutes, selectedRoute])
+        // if (selectedRoute){
+        //     // add leg
+        //     setHistoryRoute(selectedRoute)
+        // }       
+    }, [selectedAirport, fetchRoutes]) //, selectedRoute])
 
     function handleContextMenu(e){
         e.preventDefault()
@@ -59,15 +65,17 @@ export default function MapView() {
     const handleClearAll = useCallback(() => {
         clearRoutes()
         setSelectedAirport(null)
-        setSelectedRoute([])
-        setHistoryRoute([])
+        // setSelectedRoute([])
+        // setHistoryRoute([])
+        clearAll()
     }, [clearRoutes])
 
     // ── Route click — select a specific flight path ────────────────
     const handleRouteClick = useCallback((route) => {
         if (!selectedAirport) return
-        setSelectedRoute([...historyRoute, route])
-    },[selectedAirport, historyRoute])
+        // setSelectedRoute([...historyRoute, route])
+        addLeg({ from: route.from, to: route.to, flightId: route.flightId })
+    },[selectedAirport]) // ,historyRoute])
 
     // ── Deck.gl layers ────────────────────────────────────────────   
     const layers = [

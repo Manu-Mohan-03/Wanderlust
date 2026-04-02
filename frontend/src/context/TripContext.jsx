@@ -1,13 +1,33 @@
 
-import { createContext } from "react"
+import { createContext, useState } from "react"
 
 const TripDetails = createContext(null)
 
 export default function TripContext({children}) {
-  return (
-    <TripDetails.Provider>
-        {children}
-    </TripDetails.Provider>
-  )
+    // For the currently selected route
+    const [ currentLeg, setCurrentLeg ] = useState([])
+    // For previously selected Legs
+    const [historyLegs, setHistoryLegs ] = useState([]) 
+    //Helper function to add a leg
+    function addLeg(leg){
+        // Save the current leg to history before adding new leg
+        setHistoryLegs([...historyLegs, currentLeg])
+        // Create the new leg with a sequence number
+        const newLeg = { ...leg, seq: currentLeg.length + 1 }
+        // Update the active list
+        setCurrentLeg([...currentLeg, newLeg])
+    }
+    // Helper to clear everything
+    function clearAll(){
+        setHistoryLegs([])
+        setCurrentLeg([])
+    }
+
+    return (
+        <TripDetails.Provider value={{ currentLeg, addLeg, clearAll}}>
+            {children}
+        </TripDetails.Provider>
+    )
 }
 
+export { TripDetails }
