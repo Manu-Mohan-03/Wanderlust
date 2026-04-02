@@ -138,6 +138,7 @@ h1 {
       color: var(--text-primary);
       /*Change 1*/
       /* letter-spacing: -0.3px;*/
+      font-size: 18px;   /*Added*/
     }
   }
 

@@ -43,6 +43,11 @@ export default function Header() {
         document.addEventListener('mousedown', handleClickOutside)
         return () => document.removeEventListener('mousedown', handleClickOutside)
     },[])
+    // For Saving the Trip Legs along with the name (optional) from the Modal
+    function handleConfirmSave(name){
+        setShowSaveModal(false)
+    }
+
 
     return (
        <>
@@ -109,7 +114,11 @@ export default function Header() {
             {/* Login/SignUp modal —onClose prop to close the modal on clicking any where on the overlay */}
             {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)}/>}
             {/*To Save the trips Selected*/}
-            {showSaveModal && <TripSaveModal onClose={() => setShowSaveModal(false)}/>}    
+            {showSaveModal && <TripSaveModal 
+                onClose={() => setShowSaveModal(false)}
+                onSave={handleConfirmSave}
+                />
+            }    
        </>
     )
 }

@@ -1,8 +1,12 @@
 import { useState } from "react"
 
-export default function TripSaveModal({ onClose }) {
+export default function TripSaveModal({ onClose, onSave }) {
 
     const [ name, setName ] = useState('')
+
+    function handleSave(){
+        onSave(name || null)  // null = unnamed trip, backend accepts it
+    }
 
     return (
         <div className="backdrop" style={{ zIndex: 3000, backdropFilter: 'blur(2px)' }}>
@@ -23,6 +27,7 @@ export default function TripSaveModal({ onClose }) {
                     </button>
                     <button
                         className="save-button"
+                        onClick={handleSave}
                     >
                         💾 Save Trip
                     </button>
