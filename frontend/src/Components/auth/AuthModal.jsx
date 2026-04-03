@@ -12,14 +12,32 @@ export default function AuthModal({ onClose }) {
     // For authorization
     const {login, register} = useContext(AuthDetails)
 
-    function handleSubmit(){
+    function validate(){
+        if (!email && !password){
+            return "Please enter e-mail and password"
+        } else if (!email){
+            return "Please enter e-mail"
+        } else if (!password){
+            return "Please enter password"
+        }
+        return null
+    }
+
+    async function handleSubmit(){
+        
         setError(null)
+        const validationError = validate()
+        if (validationError){
+            setError(validationError)
+            return
+        }  
         setLoading(true)
+
         try{
             if (isLogin){
-                login(email,password)            
+                await login(email,password)            
             } else {
-                register(email,password)
+                await register(email,password)
             }
             onClose()
         } catch(error) {

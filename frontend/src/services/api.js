@@ -3,6 +3,8 @@ const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000'
 
 async function request(method, path, body){
 
+    let bodyStringified
+
     if (body){
         bodyStringified = { body: JSON.stringify(body)}
     }
@@ -12,6 +14,7 @@ async function request(method, path, body){
         headers: {'Content-Type': 'application/json'},
         ...bodyStringified
     })
+    
     if (!res.ok) {
 
         let message = `API error: ${res.status}`
@@ -19,8 +22,10 @@ async function request(method, path, body){
             const error = await res.json()
             if (error.detail){
                 message = error.detail
+                message = Array.isArray(message) ? message[0]?.msg ?? "Unknown Error Format" : message;
+                console.log(error.detail)
             } 
-        } catch (e){} // Keep default message
+        } catch (e){} // Keep default message        
         throw new Error(message)    
     }
     // const data = await res.json()
