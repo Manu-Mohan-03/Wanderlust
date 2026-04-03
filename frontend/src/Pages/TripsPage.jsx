@@ -2,7 +2,7 @@
 import { useContext } from 'react'
 import { useNavigate } from 'react-router'
 import { TripDetails } from '../context/TripContext'
-import { toTripLegs }        from '../hooks/useTrips'
+import { useTrips }        from '../hooks/useTrips'
 
 
 // Temporary Test Data for building and Unit Testing of Trips Page
@@ -29,6 +29,7 @@ export default function TripsPage() {
 
     const navigate = useNavigate()
     const { loadTrip } = useContext(TripDetails)
+    const { trips, fetchTrips, toTripLegs } = useTrips
 
     function handleLoad(trip){
         const legs = toTripLegs(trip)
@@ -38,6 +39,12 @@ export default function TripsPage() {
     function handleDelete(trip){
         // To be implemented
     }
+
+    // Load trips on mount
+    useEffect(() => {
+        fetchTrips()
+    },[])
+
 
     return (
         <div className="trips-page">    
@@ -50,7 +57,7 @@ export default function TripsPage() {
                     </button>
                 </div>
                 <div className="grid">
-                    {TRIPS.map(trip => (
+                    {trips.map(trip => (
                         <div key = {trip.trip_id} className="card">
                             {/* Card header */}
                             <div className="card-header">

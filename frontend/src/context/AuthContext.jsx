@@ -9,8 +9,11 @@ export default function AuthContext({children}){
     const [user, setUser] = useState(null)
 
     async function login(email,password){
-        setUser({name: 'USER', email: email})
+        const res = await authAPI.login({ email, password })
+        const user = res.data
+        setUser({...user, name: user?.username?? 'Anon'})
         console.log("Logged In")
+        return user
     }
 
     function logout(){
@@ -21,8 +24,9 @@ export default function AuthContext({children}){
     async function register(email,password){
         const res = await authAPI.register({ email, password })
         const user = res.data
-        setUser({...user, name: user?.username?? 'ANON'})   
-        console.log("Registered")             
+        setUser({...user, name: user?.username?? 'ANON'})  
+        console.log("Registered")   
+        return user          
     }
 
     return (

@@ -61,8 +61,17 @@ export default function MapView() {
     const handleRouteClick = useCallback((route) => {
         if (!selectedAirport) return
         if(route === selectedRoute) return // Onclicking same route again do nothing for now
-        // setSelectedRoute([...historyRoute, route])
-        addLeg({ from: route.from, to: route.to, flightId: route.flightId })
+        // setSelectedRoute([...historyRoute, route]) // Old way without using context
+        // addLeg({ from: route.from, to: route.to, flightId: route.flightId }) // Commented as more details needed 
+        // Find full airport details (has city) from airports list
+        const fromAirportDetails = airports.find(a => a.id === route.from.id) ?? route.from
+        const toAirportDetails   = airports.find(a => a.id === route.to.id)   ?? route.to
+        addLeg({
+            from: { ...route.from, city: fromAirportDetails.city },
+            to: { ...route.to,   city: toAirportDetails.city },
+            flightId: route.flightId,
+        })
+        
     },[selectedAirport]) // ,historyRoute])    
 
     function handleContextMenu(e){

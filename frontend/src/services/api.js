@@ -48,3 +48,8 @@ export const authAPI = {
     register: (creds) => request('POST', '/user', creds),
     logout: null
 }
+
+export const tripAPI = {
+    save : (trip) => request('POST', '/unknown', trip),
+    getAll: () => request('GET', '/unknown' ) // Already user from user context should have this data
+}

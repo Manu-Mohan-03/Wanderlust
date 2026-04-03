@@ -5,7 +5,7 @@ export default function TripSaveModal({ onClose, onSave }) {
     const [ name, setName ] = useState('')
 
     function handleSave(){
-        onSave(name || null)  // null = unnamed trip, backend accepts it
+        onSave(name.trim() || null)  // null = unnamed trip, backend accepts it
     }
 
     return (

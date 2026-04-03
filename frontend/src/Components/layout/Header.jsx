@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router'
 import AuthModal    from '../auth/AuthModal'
 import { AuthDetails } from '../../context/AuthContext'
 import TripSaveModal from '../trips/TripSaveModal'
+import { useTrips } from '../../hooks/useTrips'
+import { TripDetails } from '../../context/TripContext'
 
 
 export default function Header() {
@@ -15,8 +17,14 @@ export default function Header() {
     const [ showSaveModal, setShowSaveModal ] = useState(false)
     // For Authentication 
     const { user, logout } = useContext(AuthDetails)    
+    // For navigating to different Pages
     const navigate = useNavigate()
+    // For usermenu handling : clicking outside the menu 
     const menuRef = useRef(null)
+    // For Saving the trips
+    const { saveTrip } = useTrips
+    // To get the trip legs selected
+    const { currentLeg: selectedLegs } = useContext(TripDetails)
 
     function goTo(path){
         setMenuOpen(false)
@@ -43,11 +51,15 @@ export default function Header() {
         document.addEventListener('mousedown', handleClickOutside)
         return () => document.removeEventListener('mousedown', handleClickOutside)
     },[])
-    // For Saving the Trip Legs along with the name (optional) from the Modal
-    function handleConfirmSave(name){
-        setShowSaveModal(false)
+    // For Saving the Trip Legs along with the trip-name (optional) from the Modal
+    async function handleConfirmSave(tripName){
+        try{
+            await saveTrip(selectedLegs, user.id, tripName )
+            setShowSaveModal(false)
+        } catch {
+            // error handled inside useTrips
+        }
     }
-
 
     return (
        <>
