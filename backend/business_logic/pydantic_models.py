@@ -212,12 +212,13 @@ class UserOut(BaseModel):
 class UserIn(BaseModel):
     name: str
     email: str | None = None
-    role: str = "normal"
+    role: str = "standard"
     city: str | None = None
     country: str | None = None
     dark_mode: bool = False
     map_mode: bool = False
     date_tolerance: int | None = None
+    password: str
 
 class UserUpdate(BaseModel):
     id: int
@@ -229,6 +230,7 @@ class UserUpdate(BaseModel):
     dark_mode: bool = False
     map_mode: bool = False
     date_tolerance: int | None = None
+    password: str | None
 
 
 class AllCountryModel(BaseModel):

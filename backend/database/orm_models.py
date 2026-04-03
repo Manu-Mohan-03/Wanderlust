@@ -41,6 +41,7 @@ class UserSchema(Base):
     map_mode = Column(Boolean, server_default=text("false"), nullable=False)
     date_tolerance = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    password = Column(String, nullable=False)
 
     city_details = relationship("City", back_populates="users")
     country_details = relationship("Country", back_populates="users")

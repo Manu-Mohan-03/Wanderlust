@@ -46,19 +46,21 @@ async def default_page(
     airports_list = find_nearby_airports(db,client_meta)
     return airports_list
 
-@router.get("/user/", response_model=UserOut)
-async def user_signed_in(
-            user_name: str,
+@router.post("/user/login", response_model=UserOut)
+async def user_sign_in(
+            user_data: UserIn,
             db: Session = Depends(get_db)
     ):
     # Show user home screen with saved trip details
     # Determine whether user is normal or admin
     # Location can be based on user profile country or city
-    user = get_user_data(db, username=user_name)
+    user_name = user_data.get('username')
+    password = user_data.get('password')
+    user = get_user_data(db, username=user_name, password=password)
     return user
 
 
-@router.get("/{user_id}/home/", response_model=list[AirportModel])
+@router.get("/{user_id}/home", response_model=list[AirportModel])
 async def user_home_page(
         user_id: int,
         client_meta: tuple | None = Depends(coordinates.get_location),
@@ -84,7 +86,7 @@ async def get_airports(
     return airports
 
 
-@router.get("/flights/{iata_code}/{iata_type}/", response_model=list[RouteModel])
+@router.get("/flights/{iata_code}/{iata_type}", response_model=list[RouteModel])
 async def get_flight_routes(
         iata_code: str,
         iata_type: Literal["city","airport"],
@@ -130,7 +132,7 @@ async def get_flight_routes(
     except Exception as error:
         raise HTTPException(status_code=502, detail=str(error))
 
-@router.post("/trip/", response_model=TripOut)
+@router.post("/trip", response_model=TripOut)
 async def create_trips(
         trip_data: TripIn,
         db: Session = Depends(get_db)
@@ -139,7 +141,7 @@ async def create_trips(
     trip_out = trip.create_trip()
     return trip_out
 
-@router.delete("/trip/")
+@router.delete("/trip")
 async def delete_trips(
         trips: list[int],
         db: Session = Depends(get_db)
@@ -165,7 +167,7 @@ async def get_user(user_name:str):
     # This shows the account details
     pass
 
-@router.post("/user/", response_model=UserOut)
+@router.post("/user", response_model=UserOut)
 async def create_user(
         user_data: UserIn,
         db: Session = Depends(get_db)
@@ -175,7 +177,7 @@ async def create_user(
     new_user = user.create_user()
     return new_user
 
-@router.put("/user/", response_model=UserOut)
+@router.put("/user", response_model=UserOut)
 async def modify_user(
         user_data: UserUpdate,
         db: Session = Depends(get_db)

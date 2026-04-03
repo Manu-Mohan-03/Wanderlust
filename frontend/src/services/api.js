@@ -1,10 +1,16 @@
 
 const BASE_URL = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000'
 
-async function request(method, path){
+async function request(method, path, body){
+
+    if (body){
+        bodyStringified = { body: JSON.stringify(body)}
+    }
+
     const res = await fetch(`${BASE_URL}${path}`, {
         method,
-        headers: {'Content-Type': 'application/json'}
+        headers: {'Content-Type': 'application/json'},
+        ...bodyStringified
     })
     if (!res.ok) {
 
@@ -30,4 +36,10 @@ export const airportAPI = {
     // accepts query parameter mode for Departure(Default)/Arrival), you can set both arrival
     // and destinations(either city or airport), and also date and time
     getRoutes: (iata)=>request('GET', `/flights/${iata}/airport`) 
+}
+
+export const authAPI = {
+    login: (creds) => request('POST', '/user/login', creds),
+    register: (creds) => request('POST', '/user', creds),
+    logout: null
 }

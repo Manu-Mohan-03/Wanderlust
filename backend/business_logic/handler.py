@@ -162,7 +162,8 @@ def is_email_valid(email_id):
 def get_user_data(
         db_session,
         user_id: int | None = None,
-        username: str | None = None
+        username: str | None = None,
+        password: str | None = None
     ):
 
     if user_id is None and username is None:
@@ -171,9 +172,13 @@ def get_user_data(
     user_db = UserRepository(db_session)
     if user_id:
         user = user_db.get_user(user_id)
+        if password and user.password != password:
+            raise Exception("User name and password do not match")
         return user
     elif username:
         user = user_db.select_user_by_data(username)
+        if password and user.password != password:
+            raise Exception("User name and password do not match")
         return user
     return None
 

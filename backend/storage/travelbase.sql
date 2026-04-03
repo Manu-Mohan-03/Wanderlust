@@ -107,3 +107,5 @@ ALTER TABLE "leg_flight" ADD FOREIGN KEY ("flight_id") REFERENCES "schedules" ("
 ALTER TABLE "schedules" ADD FOREIGN KEY ("dest_airport") REFERENCES "airport" ("airport_key");
 
 ALTER TABLE airports ADD COLUMN tier SMALLINT DEFAULT 3 CHECK (tier IN (1, 2, 3));
+
+ALTER TABLE users ADD COLUMN password VARCHAR(255) NOT NULL;
