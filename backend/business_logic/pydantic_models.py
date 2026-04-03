@@ -193,8 +193,8 @@ class TripUpdate(BaseModel):
 
 class UserOut(BaseModel):
     id: int
-    name: str
-    email: str | None = None
+    username: str | None = None
+    email: str
     role: str = "normal"
     city: str | None = None
     country: str | None = None
@@ -203,15 +203,15 @@ class UserOut(BaseModel):
     date_tolerance: int | None = None
     created_at: datetime
     user_trips: list[TripOut] | None = None
-    city_details: CityModel
+    city_details: CityModel | None = None
     model_config = {
         "from_attributes": True
     }
 
 
 class UserIn(BaseModel):
-    name: str
-    email: str | None = None
+    username: str | None = None
+    email: str
     role: str = "standard"
     city: str | None = None
     country: str | None = None
@@ -222,9 +222,9 @@ class UserIn(BaseModel):
 
 class UserUpdate(BaseModel):
     id: int
-    name: str | None = None
-    email: str | None = None
-    role: str = "normal"
+    username: str | None = None
+    email: str
+    role: str = "standard"
     city: str | None = None
     country: str | None = None
     dark_mode: bool = False

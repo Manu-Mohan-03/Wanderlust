@@ -173,10 +173,12 @@ async def create_user(
         db: Session = Depends(get_db)
         ):
     # To create a user
-    print("Request Recieved")
-    user = User(user_data, db)
-    new_user = user.create_user()
-    return new_user
+    try:
+        user = User(user_data, db)
+        new_user = user.create_user()
+        return new_user
+    except Exception as error:
+        raise HTTPException(status_code=400 , detail=str(error))
 
 @router.put("/user", response_model=UserOut)
 async def modify_user(

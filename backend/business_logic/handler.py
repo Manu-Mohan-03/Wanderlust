@@ -1,5 +1,4 @@
 """This program defines Pydantic models and works as the Command/Control Centre for the application"""
-import re
 
 from datetime import datetime
 from sqlalchemy.orm import Session
@@ -9,6 +8,7 @@ from .pydantic_models import UserIn, UserOut, UserUpdate, TripIn, TripOut,TripUp
 
 from backend.database.datamanager import UserRepository, TripRepository, AirportRepo
 from backend.utilities.where_is_waldo import get_location_from_ip
+from backend.utilities.string_theory import is_email_valid
 
 import backend.api_requests.aerodata_api as aerodata
 import backend.api_requests.airlabs_api as airlabs
@@ -26,11 +26,11 @@ class User:
         try:
             check_before_save_user(self.user.role, self.user.email)
         except ValueError as error:
-            raise ValueError from error
+            raise
+            # raise ValueError(f"Error while creating user: {error}") from error
 
         created_user = self.user_db.create_user(self.user)
         return created_user
-
 
     def update_user(self, user_db: UserSchema, user_update: UserUpdate):
 
@@ -148,15 +148,6 @@ def check_before_save_user(role, email: str | None = None):
         raise ValueError("Email ID is needed")
 
     return True
-
-
-def is_email_valid(email_id):
-    # Regular expression for validating an Email
-    regex = r'^[a-z0-9]+[._]?[a-z0-9]+[@]\w+[.]\w+$'
-    if re.match(regex, email_id):
-        return True
-    else:
-        return False
 
 
 def get_user_data(

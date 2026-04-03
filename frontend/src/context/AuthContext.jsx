@@ -21,7 +21,7 @@ export default function AuthContext({children}){
     async function register(email,password){
         const res = await authAPI.register({ email, password })
         const user = res.data
-        setUser({...user, name: user?.name?? 'ANON'})   
+        setUser({...user, name: user?.username?? 'ANON'})   
         console.log("Registered")             
     }
 

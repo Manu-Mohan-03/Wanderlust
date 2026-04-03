@@ -76,17 +76,22 @@ class UserRepository:
         except NoResultFound:
             return False
 
-    def select_user_by_data(self, user_name: str, email: str | None = None):
+    def select_user_by_data(
+            self,
+            user_name: str | None = None,
+            email: str | None = None
+    ):
 
         if email:
             user = (
                 self.db.query(UserSchema)
-                .filter(UserSchema.username == user_name, UserSchema.email == email).one()
+                .filter(UserSchema.username == user_name, UserSchema.email == email)
+                .one_or_none()
             )
         else:
             user = self.is_admin_user(user_name)
         # Below code is fallback code for testing. needs to be deleted
-        if not user:
+        if not user and user_name:
             user = (
                 self.db.query(UserSchema)
                 .filter(UserSchema.username == user_name).first()
@@ -95,7 +100,7 @@ class UserRepository:
 
     def create_user(self, user_in: UserIn):
 
-        user = self.select_user_by_data(user_in.name, user_in.email)
+        user = self.select_user_by_data(user_in.username, user_in.email)
         if user:
             raise ValueError("User Data already exists.")
         user = UserSchema(**user_in.model_dump())

@@ -109,3 +109,7 @@ ALTER TABLE "schedules" ADD FOREIGN KEY ("dest_airport") REFERENCES "airport" ("
 ALTER TABLE airports ADD COLUMN tier SMALLINT DEFAULT 3 CHECK (tier IN (1, 2, 3));
 
 ALTER TABLE users ADD COLUMN password VARCHAR(255) NOT NULL;
+
+ALTER TABLE users ADD CONSTRAINT users_pk UNIQUE (LOWER(email));
+
+ALTER TABLE users ALTER COLUMN created_at SET DEFAULT now();
