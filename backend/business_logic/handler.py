@@ -65,12 +65,14 @@ class User:
         if username is None and email is None:
             raise Exception("User Details cannot be retrieved!")
 
-        user = self.user_db.select_user_by_data(username, email)
+        user = self.user_db.select_user_by_cred(username, email)
 
-        if password != user.password:
+        if user and password != user.password:
             raise Exception("User name and password do not match")
-
-        return user
+        if user:
+            return user
+        else:
+            raise Exception("Unknown Account")
 
     def get_user_from_data(self, field_name: str, user_obj: UserIn | UserUpdate):
         if field_name in user_obj:

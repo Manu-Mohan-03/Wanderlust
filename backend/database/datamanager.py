@@ -65,7 +65,6 @@ class UserRepository:
         return self._db.session
 
     def is_admin_user(self, user_name):
-        # For admin users design is not to set same username
         try:
             user = (
                 self.db.query(UserSchema)
@@ -81,21 +80,13 @@ class UserRepository:
             email: str | None = None
     ):
 
+        query = self.db.query(UserSchema)
         if email:
-            user = (
-                self.db.query(UserSchema)
-                .filter(UserSchema.username == user_name, UserSchema.email == email)
-                .one_or_none()
-            )
-        else:
-            user = self.is_admin_user(user_name)
-        # Below code is fallback code for testing. needs to be deleted
-        if not user and user_name:
-            user = (
-                self.db.query(UserSchema)
-                .filter(UserSchema.username == user_name).first()
-            )
-        return user
+            query = query.filter( UserSchema.email == email )
+
+        if user_name:
+            query = query.filter( UserSchema.username == user_name )
+        return query.first()
 
     def select_users(self, field_name, value):
         column = getattr(UserSchema, field_name)

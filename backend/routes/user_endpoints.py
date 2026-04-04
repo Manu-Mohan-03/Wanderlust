@@ -59,11 +59,14 @@ async def user_sign_in(
     # password = user_data.get('password')
     # user = get_user_data(db, username=user_name, password=password)
     # return user
-    user_obj = User(user_data, db)
-    user = user_obj.get_user_by_cred(user_data.password,
-                                     user_data.username,
-                                     user_data.email)
-    return user
+    try:
+        user_obj = User(user_data, db)
+        user = user_obj.get_user_by_cred(user_data.password,
+                                         user_data.username,
+                                         user_data.email)
+        return user
+    except Exception as error:
+        raise HTTPException(status_code=400, detail=str(error))
 
 
 @router.post("/user", response_model=UserOut)
