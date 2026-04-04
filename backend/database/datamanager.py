@@ -16,7 +16,6 @@ import math
 
 """
 
-
 class SingletonMeta(type):
     """
     Meta Class, This is a factory class which creates other classes.
@@ -76,7 +75,7 @@ class UserRepository:
         except NoResultFound:
             return False
 
-    def select_user_by_data(
+    def select_user_by_cred(
             self,
             user_name: str | None = None,
             email: str | None = None
@@ -98,9 +97,15 @@ class UserRepository:
             )
         return user
 
+    def select_users(self, field_name, value):
+        column = getattr(UserSchema, field_name)
+        stmt = select(UserSchema).where(column == value)
+        result = self.db.execute(stmt).scalars().all()
+        return result
+
     def create_user(self, user_in: UserIn):
 
-        user = self.select_user_by_data(user_in.username, user_in.email)
+        user = self.select_user_by_cred(user_in.username, user_in.email)
         if user:
             raise ValueError("User Data already exists.")
         if not user_in.username and user_in.email:

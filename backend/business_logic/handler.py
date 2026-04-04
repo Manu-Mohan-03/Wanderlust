@@ -1,4 +1,4 @@
-"""This program defines Pydantic models and works as the Command/Control Centre for the application"""
+"""This program uses Pydantic models and works as the Command/Control Centre for the application"""
 
 from datetime import datetime
 from sqlalchemy.orm import Session
@@ -14,7 +14,7 @@ import backend.api_requests.aerodata_api as aerodata
 import backend.api_requests.airlabs_api as airlabs
 
 class User:
-    def __init__(self, user_obj: UserIn | UserOut, db_session):
+    def __init__(self, user_obj: UserIn | UserUpdate, db_session):
         self.user = user_obj
         self.user_db = UserRepository(db_session)
 
@@ -42,17 +42,46 @@ class User:
         updated_user = self.user_db.update_user(user_db, user_update)
         return updated_user
 
-    def get_user(self, user_id: int| None = None):
+    def get_user(self):
+        # Can be replaced by a getter method
+        return self.user
 
-        if not user_id and isinstance(self.user, UserOut):
+    def get_user_by_id(self, user_id: int| None = None):
+
+        if not user_id and isinstance(self.user, UserUpdate):
             user_id = self.user.id
         else:
             raise Exception("User Details cannot be fetched")
         user = self.user_db.get_user(user_id)
-        return UserOut.model_validate(user)
+        # return UserOut.model_validate(user)
+        return user
 
-    def get_user_by_id(self, user_id):
-        pass
+    def get_user_by_cred(self,
+                         password: str,
+                         username: str | None = None,
+                         email : str | None = None
+        ):
+
+        if username is None and email is None:
+            raise Exception("User Details cannot be retrieved!")
+
+        user = self.user_db.select_user_by_data(username, email)
+
+        if password != user.password:
+            raise Exception("User name and password do not match")
+
+        return user
+
+    def get_user_from_data(self, field_name: str, user_obj: UserIn | UserUpdate):
+        if field_name in user_obj:
+            value = getattr(user_obj, field_name)
+            # query = (
+            #     self.user_db.db.query(UserSchema)
+            #     .filter(getattr(UserSchema, field_name) == value)
+            # )
+            #return query.all()
+            self.user_db.select_users(field_name, value)
+        return None
 
     def delete_user(self):
         pass
@@ -150,28 +179,28 @@ def check_before_save_user(role, email: str | None = None):
     return True
 
 
-def get_user_data(
-        db_session,
-        user_id: int | None = None,
-        username: str | None = None,
-        password: str | None = None
-    ):
-
-    if user_id is None and username is None:
-        raise Exception("User Details cannot be retrieved!")
-
-    user_db = UserRepository(db_session)
-    if user_id:
-        user = user_db.get_user(user_id)
-        if password and user.password != password:
-            raise Exception("User name and password do not match")
-        return user
-    elif username:
-        user = user_db.select_user_by_data(username)
-        if password and user.password != password:
-            raise Exception("User name and password do not match")
-        return user
-    return None
+# def get_user_data(
+#         db_session,
+#         user_id: int | None = None,
+#         username: str | None = None,
+#         password: str | None = None
+#     ):
+#
+#     if user_id is None and username is None:
+#         raise Exception("User Details cannot be retrieved!")
+#
+#     user_db = UserRepository(db_session)
+#     if user_id:
+#         user = user_db.get_user(user_id)
+#         if password and user.password != password:
+#             raise Exception("User name and password do not match")
+#         return user
+#     elif username:
+#         user = user_db.select_user_by_data(username)
+#         if password and user.password != password:
+#             raise Exception("User name and password do not match")
+#         return user
+#     return None
 
 
 def get_all_airports(

@@ -6,7 +6,7 @@ from datetime import datetime
 from backend.business_logic.pydantic_models import (
     UserIn, UserOut, AirportModel, CityModel, RouteModel, TripIn, TripOut, TripUpdate, UserUpdate, AllAirportModel)
 from backend.business_logic.handler import (
-    User, Trip, get_user_data, find_nearby_airports, get_flights, get_iata_code, delete_trips_by_id,
+    User, Trip, find_nearby_airports, get_flights, get_iata_code, delete_trips_by_id,
     get_trip_data, delete_user_by_id, get_all_airports)
 from backend.database.orm_models import SessionLocal
 
@@ -54,10 +54,30 @@ async def user_sign_in(
     # Show user home screen with saved trip details
     # Determine whether user is normal or admin
     # Location can be based on user profile country or city
-    user_name = user_data.get('username')
-    password = user_data.get('password')
-    user = get_user_data(db, username=user_name, password=password)
+
+    # user_name = user_data.username
+    # password = user_data.get('password')
+    # user = get_user_data(db, username=user_name, password=password)
+    # return user
+    user_obj = User(user_data, db)
+    user = user_obj.get_user_by_cred(user_data.password,
+                                     user_data.username,
+                                     user_data.email)
     return user
+
+
+@router.post("/user", response_model=UserOut)
+async def create_user(
+        user_data: UserIn,
+        db: Session = Depends(get_db)
+        ):
+    # To create a user(registering a new user)
+    try:
+        user = User(user_data, db)
+        new_user = user.create_user()
+        return new_user
+    except Exception as error:
+        raise HTTPException(status_code=400 , detail=str(error))
 
 
 @router.get("/{user_id}/home", response_model=list[AirportModel])
@@ -67,7 +87,12 @@ async def user_home_page(
         db: Session = Depends(get_db)
     ):
 
-    user_db = get_user_data(db,user_id)
+    # user_db = get_user_data(db,user_id)
+
+    user_obj = UserUpdate(id=user_id)  # Created a pydantic object
+    user = User(user_obj, db) # Instantiated handler class
+    user_db = user.get_user_by_id(user_id) # fetched the user details
+    # Converted it back to compatible pydantic class
     user_data = UserOut.model_validate(user_db)
 
     if user_data.city_details:
@@ -167,29 +192,20 @@ async def get_user(user_name:str):
     # This shows the account details
     pass
 
-@router.post("/user", response_model=UserOut)
-async def create_user(
-        user_data: UserIn,
-        db: Session = Depends(get_db)
-        ):
-    # To create a user
-    try:
-        user = User(user_data, db)
-        new_user = user.create_user()
-        return new_user
-    except Exception as error:
-        raise HTTPException(status_code=400 , detail=str(error))
 
 @router.put("/user", response_model=UserOut)
 async def modify_user(
         user_data: UserUpdate,
         db: Session = Depends(get_db)
     ):
-    user_db = get_user_data(db, user_data.id)
-    existing_user = UserOut.model_validate(user_db)
+    # user_db = get_user_data(db, user_data.id)
+    # existing_user = UserUpdate.model_validate(user_db)
+    # user = User(existing_user, db)
 
-    user = User(existing_user, db)
-    modified_user = user.update_user(user_db, user_data)
+    user = User(user_data, db)
+    existing_user = user.get_user_by_id(user_data.id)
+
+    modified_user = user.update_user(existing_user, user_data)
     return modified_user
 
 @router.delete("/user/{user_id}")

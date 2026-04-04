@@ -195,7 +195,7 @@ class UserOut(BaseModel):
     id: int
     username: str | None = None
     email: str
-    role: str = "normal"
+    role: str = "standard"
     city: str | None = None
     country: str | None = None
     dark_mode: bool = False
@@ -223,14 +223,17 @@ class UserIn(BaseModel):
 class UserUpdate(BaseModel):
     id: int
     username: str | None = None
-    email: str
+    email: str | None = None
     role: str = "standard"
     city: str | None = None
     country: str | None = None
     dark_mode: bool = False
     map_mode: bool = False
     date_tolerance: int | None = None
-    password: str | None
+    password: str | None = None
+    model_config = {
+        "from_attributes": True
+    }
 
 
 class AllCountryModel(BaseModel):
