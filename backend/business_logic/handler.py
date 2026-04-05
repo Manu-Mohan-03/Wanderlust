@@ -111,12 +111,11 @@ class Trip:
 
     def change_trip(self, trip_update: TripUpdate, existing_trip_db: TripSchema):
         # First check if there is a header change
-        changed_trip = self.trip
         existing_trip = TripOut.model_validate(existing_trip_db)
 
         if trip_update.trip_leg:
             for trip_leg in trip_update.trip_leg:
-                key = (changed_trip.trip_id, trip_leg.leg_no)
+                key = (existing_trip.trip_id, trip_leg.leg_no)
                 if trip_leg.update_mode == "I":
                     self.trip_db.add_trip_leg(existing_trip_db,trip_leg)
                 else:
@@ -132,7 +131,7 @@ class Trip:
 
         if trip_update.trip_flight:
             for flight in trip_update.trip_flight:
-                key = (changed_trip.trip_id, flight.leg_no)
+                key = (existing_trip.trip_id, flight.leg_no)
                 if flight.update_mode == "I":
                     trip_leg_db = next(
                         (trip_leg for trip_leg in existing_trip_db.trip_details
@@ -159,7 +158,7 @@ class Trip:
             raise Exception("Database Operation Failed!")
 
 
-    def get_trip(self, trip_id):
+    def get_trip_by_id(self, trip_id):
         trip = self.trip_db.get_trip(trip_id)
         if not trip:
             raise ValueError("Trip Not found!")
@@ -223,15 +222,15 @@ def get_all_airports(
     return all_airports
 
 
-def get_trip_data(
-        db_session,
-        trip_id: int,
-    ):
-    trip_db = TripRepository(db_session)
-    trip = trip_db.get_trip(trip_id)
-    if not trip:
-        raise ValueError("Trip Not found!")
-    return trip
+# def get_trip_data(
+#         db_session,
+#         trip_id: int,
+#     ):
+#     trip_db = TripRepository(db_session)
+#     trip = trip_db.get_trip(trip_id)
+#     if not trip:
+#         raise ValueError("Trip Not found!")
+#     return trip
 
 
 def delete_trips_by_id(db_session, trips: list):

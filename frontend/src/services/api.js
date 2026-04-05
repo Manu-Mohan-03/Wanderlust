@@ -51,5 +51,5 @@ export const authAPI = {
 
 export const tripAPI = {
     save : (trip) => request('POST', '/trip', trip),
-    getAll: () => request('GET', '/unknown' ) // Already user from user context should have this data
+    getAll: (userId) => request('GET', `/${userId}/trips` ) 
 }

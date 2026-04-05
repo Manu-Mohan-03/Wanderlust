@@ -8,7 +8,7 @@ from backend.business_logic.pydantic_models import (
     TripHeaderUpdate)
 from backend.business_logic.handler import (
     User, Trip, find_nearby_airports, get_flights, get_iata_code, delete_trips_by_id,
-    get_trip_data, delete_user_by_id, get_all_airports)
+    delete_user_by_id, get_all_airports)
 from backend.database.orm_models import SessionLocal
 
 import backend.utilities.where_is_waldo as coordinates
@@ -178,6 +178,7 @@ async def get_trips(
         user_id: int,
         db: Session = Depends(get_db)
     ):
+    """To show all the trips of a user"""
     try:
         trip_obj = TripUpdate(trip_header=TripHeaderUpdate(user_id=user_id))
         trip = Trip(trip_obj, db)
@@ -201,11 +202,17 @@ async def modify_trip(
         db: Session = Depends(get_db)
     ):
 
-    trip_db = get_trip_data(db,trip_data.trip_header.trip_id)
-    old_trip = TripUpdate.model_validate(trip_db)
+    # trip_db = get_trip_data(db,trip_data.trip_header.trip_id)
+    # old_trip = TripOut.model_validate(trip_db)
+    #
+    # trip = Trip(old_trip, db)
+    # trip_out = trip.change_trip(trip_data, trip_db)
+    # return trip_out
 
-    trip = Trip(old_trip, db)
-    trip_out = trip.change_trip(trip_data, trip_db)
+    trip = Trip(trip_data,db)
+    old_trip = trip.get_trip_by_id(trip_data.trip_header.trip_id)
+
+    trip_out = trip.change_trip(trip_data, old_trip)
     return trip_out
 
 @router.get("/user/{user_name}")

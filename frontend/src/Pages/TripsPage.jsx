@@ -45,7 +45,7 @@ export default function TripsPage() {
     // Load trips on mount
     useEffect(() => {
         if (user) 
-            fetchTrips(user)
+            fetchTrips(user.id)
     },[user])
 
 
