@@ -109,11 +109,13 @@ export function useTrips() {
     }
   }
 
-  async function fetchTrips() {
+  async function fetchTrips(user) {
     // setLoading(true)
     // setError(null)    
     try {
-      const data = await tripAPI.getAll()
+      // const data = await tripAPI.getAll() // since data already available in user
+      const data = user?.user_trips ?? []
+      console.log("Trip legs: ", data)
       setTrips(data)
     } catch (err) {
       // setError('Failed to load trip')

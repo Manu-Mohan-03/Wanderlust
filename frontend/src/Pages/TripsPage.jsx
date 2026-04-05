@@ -1,8 +1,9 @@
 
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { useNavigate } from 'react-router'
 import { TripDetails } from '../context/TripContext'
 import { useTrips }        from '../hooks/useTrips'
+import { AuthDetails } from '../context/AuthContext'
 
 
 // Temporary Test Data for building and Unit Testing of Trips Page
@@ -28,8 +29,9 @@ const TRIPS = [{
 export default function TripsPage() {
 
     const navigate = useNavigate()
-    const { loadTrip } = useContext(TripDetails)
-    const { trips, fetchTrips, toTripLegs } = useTrips
+    const { loadTrip } = useContext(TripDetails)    
+    const { trips, fetchTrips, toTripLegs } = useTrips()
+    const { user } = useContext(AuthDetails)
 
     function handleLoad(trip){
         const legs = toTripLegs(trip)
@@ -42,8 +44,9 @@ export default function TripsPage() {
 
     // Load trips on mount
     useEffect(() => {
-        fetchTrips()
-    },[])
+        if (user) 
+            fetchTrips(user)
+    },[user])
 
 
     return (
@@ -67,7 +70,7 @@ export default function TripsPage() {
                             </div>
                             {/* Legs list */}
                             <div className="legs-list">
-                                {trip.trip_legs.map(leg => (
+                                {trip.trip_details.map(leg => (
                                     <div key={leg.leg_no} className="leg-row">
                                         <span className="leg-seq">{leg.leg_no}</span>
                                         <span className="leg-route">
@@ -76,7 +79,7 @@ export default function TripsPage() {
                                             {leg.destination_city}                                        
                                         </span>
                                         <span className="leg-flight">
-                                            {leg.flight.flight_id}
+                                            {leg.flight_details.flight_id}
                                         </span>
                                     </div>
                                 ))}
