@@ -94,7 +94,9 @@ export function useTrips() {
     // setLoading(true)
     // setError(null)
     try {
+      console.log("Confirm useTrips")
       const requestBody = toTripIn(legs, userId, tripName)
+      
       const saved = await tripAPI.save(requestBody)
       // setTrips(prev => [saved])
       return saved

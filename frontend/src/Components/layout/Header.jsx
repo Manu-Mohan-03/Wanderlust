@@ -22,7 +22,7 @@ export default function Header() {
     // For usermenu handling : clicking outside the menu 
     const menuRef = useRef(null)
     // For Saving the trips
-    const { saveTrip } = useTrips
+    const { saveTrip } = useTrips()
     // To get the trip legs selected
     const { currentLeg: selectedLegs } = useContext(TripDetails)
 
