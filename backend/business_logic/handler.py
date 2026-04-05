@@ -89,7 +89,7 @@ class User:
         pass
 
 class Trip:
-    def __init__(self, trip_obj: TripIn | TripOut, db_session):
+    def __init__(self, trip_obj: TripIn | TripUpdate, db_session):
         self.trip = trip_obj
         self.trip_db = TripRepository(db_session)
 
@@ -104,8 +104,10 @@ class Trip:
         try:
             created_trip = self.trip_db.commit_db(trip_saved)
             return created_trip
-        except:
-            raise Exception("Database Operation Failed!")
+        except Exception as error:
+            error_type = type(error).__name__
+            raise Exception(f"Database Operation Failed!: "
+                            f"{error_type}{error}") from error
 
     def change_trip(self, trip_update: TripUpdate, existing_trip_db: TripSchema):
         # First check if there is a header change
@@ -164,8 +166,19 @@ class Trip:
         return trip
 
     def delete_trip(self, db_session):
-        trip_db = TripRepository(db_session)
-        trip_db.delete_trip(self.trip.trip_id, commit=True)
+
+        self.trip_db.delete_trip(self.trip.trip_id, commit=True)
+
+    def get_trips_by_user(self, user_id: int | None = None):
+
+        if user_id is None:
+            if isinstance(self.trip, TripUpdate):
+                user_id = self.trip.trip_header.user_id
+            if isinstance(self.trip, TripIn):
+                user_id = self.trip.user_id
+
+        trips = self.trip_db.get_trips_by_user(user_id)
+        return trips
 
 
 def check_before_save_user(role, email: str | None = None):

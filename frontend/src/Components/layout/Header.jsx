@@ -54,7 +54,7 @@ export default function Header() {
     // For Saving the Trip Legs along with the trip-name (optional) from the Modal
     async function handleConfirmSave(tripName){
         try{
-            await saveTrip(selectedLegs, user.id, tripName )
+            const newTrip = await saveTrip(selectedLegs, user.id, tripName )
             setShowSaveModal(false)
         } catch {
             // error handled inside useTrips

@@ -4,7 +4,8 @@ from typing import Literal
 from datetime import datetime
 #from pydantic import BaseModel
 from backend.business_logic.pydantic_models import (
-    UserIn, UserOut, AirportModel, CityModel, RouteModel, TripIn, TripOut, TripUpdate, UserUpdate, AllAirportModel)
+    UserIn, UserOut, AirportModel, CityModel, RouteModel, TripIn, TripOut, TripUpdate, UserUpdate, AllAirportModel,
+    TripHeaderUpdate)
 from backend.business_logic.handler import (
     User, Trip, find_nearby_airports, get_flights, get_iata_code, delete_trips_by_id,
     get_trip_data, delete_user_by_id, get_all_airports)
@@ -165,9 +166,26 @@ async def create_trips(
         trip_data: TripIn,
         db: Session = Depends(get_db)
     ):
-    trip = Trip(trip_data, db)
-    trip_out = trip.create_trip()
-    return trip_out
+    try:
+        trip = Trip(trip_data, db)
+        trip_out = trip.create_trip()
+        return trip_out
+    except Exception as error:
+        raise HTTPException(status_code=502, detail=str(error))
+
+@router.get("/{user_id}/trips", response_model=list[TripOut])
+async def get_trips(
+        user_id: int,
+        db: Session = Depends(get_db)
+    ):
+    try:
+        trip_obj = TripUpdate(trip_header=TripHeaderUpdate(user_id=user_id))
+        trip = Trip(trip_obj, db)
+        trips_db = trip.get_trips_by_user(user_id)
+        return trips_db
+    except Exception as error:
+        raise HTTPException(status_code=502, detail=str(error))
+
 
 @router.delete("/trip")
 async def delete_trips(
@@ -184,7 +202,7 @@ async def modify_trip(
     ):
 
     trip_db = get_trip_data(db,trip_data.trip_header.trip_id)
-    old_trip = TripOut.model_validate(trip_db)
+    old_trip = TripUpdate.model_validate(trip_db)
 
     trip = Trip(old_trip, db)
     trip_out = trip.change_trip(trip_data, trip_db)

@@ -1,5 +1,5 @@
 from datetime import datetime, time
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from enum import Enum
 
 
@@ -164,8 +164,15 @@ class UpdateMode(str, Enum):
 
 
 class TripHeaderUpdate(BaseModel):
-    trip_id: int
-    name: str | None
+    trip_id: int | None = None
+    user_id: int | None = None
+    name: str | None = None
+
+    @model_validator(mode='after')
+    def check_at_least_one_id(self):
+        if self.trip_id is None and self.user_id is None:
+            raise ValueError("Either trip_id or user_id must be provided")
+        return self
 
 
 class TripLegUpdate(BaseModel):

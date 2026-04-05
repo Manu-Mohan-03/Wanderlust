@@ -152,7 +152,8 @@ class UserRepository:
         user = self.db.get(UserSchema, user_id)
         return user
 
-    def get_trips_of_user(self):
+    def get_user_trips(self):
+        """Admin Method"""
         pass
 
     def get_users(self):
@@ -231,6 +232,13 @@ class TripRepository:
 
         trip = self.db.get(TripSchema, trip_id)
         return trip
+
+    def get_trips_by_user(self, user_id):
+
+        trips = (self.db.query(TripSchema)
+                 .filter(TripSchema.user_id == user_id)
+                 .all())
+        return trips
 
     def modify_trip_leg(self, trip_leg_db: TripLeg, new_leg: TripLegUpdate, commit: bool = False):
 
