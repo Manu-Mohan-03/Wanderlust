@@ -163,16 +163,10 @@ class UpdateMode(str, Enum):
     delete = "D"
 
 
-class TripHeaderUpdate(BaseModel):
+class TripHeader(BaseModel):
     trip_id: int | None = None
     user_id: int | None = None
     name: str | None = None
-
-    @model_validator(mode='after')
-    def check_at_least_one_id(self):
-        if self.trip_id is None and self.user_id is None:
-            raise ValueError("Either trip_id or user_id must be provided")
-        return self
 
 
 class TripLegUpdate(BaseModel):
@@ -192,10 +186,19 @@ class LegFlightUpdate(BaseModel):
 
 
 class TripUpdate(BaseModel):
-    #update_types: list[TripUpdateType]
-    trip_header: TripHeaderUpdate
+    ##update_types: list[TripUpdateType]
+    # trip_header: TripHeaderUpdate
+    trip_id: int | None = None
+    user_id: int | None = None
+    name: str | None = None
     trip_leg: list[TripLegUpdate] | None = None
     trip_flight: list[LegFlightUpdate] | None = None
+
+    @model_validator(mode='after')
+    def check_at_least_one_id(self):
+        if self.trip_id is None and self.user_id is None:
+            raise ValueError("Either trip_id or user_id must be provided")
+        return self
 
 
 class UserOut(BaseModel):

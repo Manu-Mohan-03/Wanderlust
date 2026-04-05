@@ -7,7 +7,8 @@ from datetime import time
 from backend.database.orm_models import (
     UserSchema, TripSchema, TripLeg, LegFlight, Airport, City, Schedules, SessionLocal)
 from backend.business_logic.pydantic_models import (
-    UserIn, TripIn, TripOut, TripLegIn, LegFlightIn, LegFlightUpdate, TripLegUpdate, TripHeaderUpdate, UserUpdate)
+    UserIn, TripIn, TripOut, TripLegIn, LegFlightIn, LegFlightUpdate,
+    TripLegUpdate, TripHeader, UserUpdate)
 
 import math
 
@@ -200,7 +201,7 @@ class TripRepository:
             self.db.refresh(trip)
         return trip
 
-    def change_trip(self, trip_db: TripSchema, changed_trip: TripHeaderUpdate, commit: bool = False):
+    def change_trip(self, trip_db: TripSchema, changed_trip: TripHeader, commit: bool = False):
 
         new_trip = changed_trip.model_dump(exclude_unset=True)
         for field, value in new_trip:

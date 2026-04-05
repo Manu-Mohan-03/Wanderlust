@@ -4,8 +4,8 @@ from typing import Literal
 from datetime import datetime
 #from pydantic import BaseModel
 from backend.business_logic.pydantic_models import (
-    UserIn, UserOut, AirportModel, CityModel, RouteModel, TripIn, TripOut, TripUpdate, UserUpdate, AllAirportModel,
-    TripHeaderUpdate)
+    UserIn, UserOut, AirportModel, CityModel, RouteModel, TripIn, TripOut, TripUpdate,
+    UserUpdate, AllAirportModel)
 from backend.business_logic.handler import (
     User, Trip, find_nearby_airports, get_flights, get_iata_code, delete_trips_by_id,
     delete_user_by_id, get_all_airports)
@@ -180,7 +180,7 @@ async def get_trips(
     ):
     """To show all the trips of a user"""
     try:
-        trip_obj = TripUpdate(trip_header=TripHeaderUpdate(user_id=user_id))
+        trip_obj = TripUpdate(user_id=user_id)
         trip = Trip(trip_obj, db)
         trips_db = trip.get_trips_by_user(user_id)
         return trips_db
@@ -195,6 +195,16 @@ async def delete_trips(
     ):
 
     delete_trips_by_id(db,trips)
+
+@router.delete("/trip/{trip_id}")
+async def delete_trip(
+        trip_id: int,
+        db: Session = Depends(get_db)
+    ):
+
+    trip_obj = TripUpdate(trip_id=trip_id)
+    trip = Trip(trip_obj, db)
+    trip.delete_trip()
 
 @router.put("/trip", response_model=TripOut)
 async def modify_trip(

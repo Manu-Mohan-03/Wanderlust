@@ -4,7 +4,8 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from backend.database.orm_models import TripSchema, UserSchema
-from .pydantic_models import UserIn, UserOut, UserUpdate, TripIn, TripOut,TripUpdate, AirportModel, CityModel
+from .pydantic_models import UserIn, UserOut, UserUpdate, TripIn, TripOut, TripUpdate, AirportModel, CityModel, \
+    TripHeader
 
 from backend.database.datamanager import UserRepository, TripRepository, AirportRepo
 from backend.utilities.where_is_waldo import get_location_from_ip
@@ -148,8 +149,13 @@ class Trip:
                             self.trip_db.change_flight_in_trip(flight_db, flight )
                         case "D":
                             self.trip_db.delete_flight_from_trip(flight_db)
-        if trip_update.trip_header:
-            self.trip_db.change_trip(existing_trip_db, trip_update.trip_header)
+        trip_header = TripHeader(
+            user_id=trip_update.user_id,
+            trip_id=trip_update.trip_id,
+            name=trip_update.name
+        )
+        if trip_header:
+            self.trip_db.change_trip(existing_trip_db, trip_header)
 
         try:
             changed_trip = self.trip_db.commit_db(existing_trip_db)
@@ -164,7 +170,7 @@ class Trip:
             raise ValueError("Trip Not found!")
         return trip
 
-    def delete_trip(self, db_session):
+    def delete_trip(self):
 
         self.trip_db.delete_trip(self.trip.trip_id, commit=True)
 

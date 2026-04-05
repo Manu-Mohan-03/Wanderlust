@@ -5,41 +5,28 @@ import { TripDetails } from '../context/TripContext'
 import { useTrips }        from '../hooks/useTrips'
 import { AuthDetails } from '../context/AuthContext'
 
-
-// Temporary Test Data for building and Unit Testing of Trips Page
-const TRIPS = [{
-  user_id: 7,
-  trip_id: 1,
-  name: "My Euro Trip",        
-  trip_legs: [
-    {
-      leg_no: 1,               
-      mode: "flight",          
-      origin_city: "Frankfurt", 
-      destination_city: "Phoenix",
-      leg_start: null,         
-      leg_stop:  null,         
-      flight: {
-        flight_id: "DE2026"    
-      }
-    }
-  ]
-}]
-
 export default function TripsPage() {
 
     const navigate = useNavigate()
     const { loadTrip } = useContext(TripDetails)    
-    const { trips, fetchTrips, toTripLegs } = useTrips()
+    const { trips, fetchTrips, toTripLegs, deleteTrip } = useTrips()
     const { user } = useContext(AuthDetails)
+    
+    // Redirect if not logged in
+    useEffect(() => {
+        if (!user)
+            navigate('/')
+    }, [user])
 
     function handleLoad(trip){
         const legs = toTripLegs(trip)
         loadTrip(legs)
         navigate('/')
     }
-    function handleDelete(trip){
-        // To be implemented
+
+    async function handleDelete(e, tripId){
+        e.stopPropagation()
+        await deleteTrip(tripId)
     }
 
     // Load trips on mount
@@ -89,7 +76,7 @@ export default function TripsPage() {
                                 <button className="load-button" onClick={()=>handleLoad(trip)}>
                                     🗺️ Load on Map        
                                 </button> 
-                                <button className="delete-button" onClick={() => handleDelete(trip)}>
+                                <button className="delete-button" onClick={(e) => handleDelete(e, trip.trip_id)}>
                                     🗑️        
                                 </button>       
                             </div>

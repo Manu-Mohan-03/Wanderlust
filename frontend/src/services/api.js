@@ -51,5 +51,6 @@ export const authAPI = {
 
 export const tripAPI = {
     save : (trip) => request('POST', '/trip', trip),
-    getAll: (userId) => request('GET', `/${userId}/trips` ) 
+    getAll: (userId) => request('GET', `/${userId}/trips` ), 
+    delete: (tripId) => request('DELETE', `/trip/${tripId}` )
 }
