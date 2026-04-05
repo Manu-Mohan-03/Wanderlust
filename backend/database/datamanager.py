@@ -188,8 +188,11 @@ class TripRepository:
                 setattr(trip, field, value)
         # trip = TripSchema(**trip_in.model_dump())
         self.db.add(trip)
-        # self.db.flush() #Not needed as relationship is maintained and
+        # flush Not needed as relationship is maintained and
         # properly instantiated using relationship trip_id will get value
+        # Only partly true , for the program to work correctly
+        # trip.trip_details.append(legs) should be added. So flush needed
+        self.db.flush()
 
         if commit:
             self._db.commit()

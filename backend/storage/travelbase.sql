@@ -113,3 +113,11 @@ ALTER TABLE users ADD COLUMN password VARCHAR(255) NOT NULL;
 ALTER TABLE users ADD CONSTRAINT users_pk UNIQUE (LOWER(email));
 
 ALTER TABLE users ALTER COLUMN created_at SET DEFAULT now();
+
+ALTER TABLE trips ALTER COLUMN created_at set not null;
+
+ALTER TABLE trips ALTER COLUMN created_at set default now();
+
+ALTER TABLE trip_legs ALTER COLUMN saved_at set not null;
+
+ALTER TABLE trip_legs ALTER COLUMN saved_at set default now();

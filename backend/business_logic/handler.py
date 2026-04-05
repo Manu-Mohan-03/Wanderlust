@@ -104,9 +104,6 @@ class Trip:
         try:
             created_trip = self.trip_db.commit_db(trip_saved)
             return created_trip
-            # trip_saved = self.trip_db.commit_db()
-            # trip_saved.trip_details = trip_legs
-            # return trip_saved
         except:
             raise Exception("Database Operation Failed!")
 
