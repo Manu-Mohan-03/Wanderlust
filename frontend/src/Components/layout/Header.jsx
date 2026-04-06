@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 
-import AuthModal    from '../auth/AuthModal'
+import AuthModal from '../auth/AuthModal'
 import { AuthDetails } from '../../context/AuthContext'
 import TripSaveModal from '../trips/TripSaveModal'
 import { useTrips } from '../../hooks/useTrips'
@@ -10,13 +10,13 @@ import { TripDetails } from '../../context/TripContext'
 
 export default function Header() {
     // To display dialog box for signing in
-    const [ showAuthModal, setShowAuthModal ] = useState(false)
+    const [showAuthModal, setShowAuthModal] = useState(false)
     // Toggle Menu for user details
-    const [ menuOpen, setMenuOpen ] = useState(false)
+    const [menuOpen, setMenuOpen] = useState(false)
     // To display dialog box for saving
-    const [ showSaveModal, setShowSaveModal ] = useState(false)
+    const [showSaveModal, setShowSaveModal] = useState(false)
     // For Authentication 
-    const { user, logout } = useContext(AuthDetails)    
+    const { user, logout } = useContext(AuthDetails)
     // For navigating to different Pages
     const navigate = useNavigate()
     // For usermenu handling : clicking outside the menu 
@@ -26,48 +26,53 @@ export default function Header() {
     // To get the trip legs selected
     const { currentLeg: selectedLegs } = useContext(TripDetails)
 
-    function goTo(path){
+    function goTo(path) {
         setMenuOpen(false)
         navigate(path)
     }
 
-    function handleLogout(){
+    function handleLogout() {
         logout()
         setMenuOpen(false)
         navigate('/')
     }
-    function handleSaveClick(){
+    function handleSaveClick() {
         setMenuOpen(false)
         setShowSaveModal(true)
     }
 
     // Close dropdown if user clicks outside
     useEffect(() => {
-        function handleClickOutside(e){
+        function handleClickOutside(e) {
             if (menuRef.current && !menuRef.current.contains(e.target)) {
                 setMenuOpen(false)
             }
         }
         document.addEventListener('mousedown', handleClickOutside)
         return () => document.removeEventListener('mousedown', handleClickOutside)
-    },[])
+    }, [])
     // For Saving the Trip Legs along with the trip-name (optional) from the Modal
-    async function handleConfirmSave(tripName){
-        try{
-            const newTrip = await saveTrip(selectedLegs, user.id, tripName )
+    async function handleConfirmSave(tripName) {
+        try {
+            const newTrip = await saveTrip(selectedLegs, user.id, tripName)
             setShowSaveModal(false)
         } catch {
             // error handled inside useTrips
         }
     }
 
+    function disableSave(){
+        if (saving) return true
+        return selectedLegs.length > 0 ? false : true
+    }
+
     return (
-       <>
+        <>
             <header className='header'>
 
                 {/* Left — Logo */}
                 <div className='logo' onClick={() => navigate('/')}>
-                ✈️ <span className='logo-text'>WanderLust</span>
+                    ✈️ <span className='logo-text'>WanderLust</span>
                 </div>
 
                 {/* Right — Login Button*/}
@@ -101,7 +106,11 @@ export default function Header() {
                                         🗺️ My Trips
                                     </button>
                                     <hr className='divider' />
-                                    <button className='dropdown-item' onClick={handleSaveClick}>
+                                    <button
+                                        className='dropdown-item'
+                                        onClick={handleSaveClick}
+                                        disabled={disableSave}
+                                    >
                                         💾 Save Trip
                                     </button>
                                     <hr className='divider' />
@@ -118,18 +127,19 @@ export default function Header() {
                         <button className="login-button" onClick={() => setShowAuthModal(true)}>
                             Sign In
                         </button>
-                    )}                  
+                    )}
                 </div>
             </header>
 
             {/* Login/SignUp modal —onClose prop to close the modal on clicking any where on the overlay */}
-            {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)}/>}
+            {showAuthModal && <AuthModal onClose={() => setShowAuthModal(false)} />}
             {/*To Save the trips Selected*/}
-            {showSaveModal && <TripSaveModal 
+            {showSaveModal && <TripSaveModal
                 onClose={() => setShowSaveModal(false)}
                 onSave={handleConfirmSave}
-                />
-            }    
-       </>
+                loading={saving}
+            />
+            }
+        </>
     )
 }
