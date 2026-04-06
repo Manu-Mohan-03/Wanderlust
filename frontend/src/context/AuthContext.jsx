@@ -31,8 +31,14 @@ export default function AuthContext({children}){
         return user          
     }
 
+    // Updates local user state after profile change
+    function updateUser(updatedUser){
+        const merged = {...user, ...updatedUser}
+        setUser(merged)
+    }
+
     return (
-        <AuthDetails.Provider value={{ user, login, register, logout }}>
+        <AuthDetails.Provider value={{ user, login, register, logout, updateUser }}>
             {children}
         </AuthDetails.Provider>
     )

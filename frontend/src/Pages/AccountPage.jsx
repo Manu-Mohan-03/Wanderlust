@@ -7,7 +7,7 @@ import { userAPI } from "../services/api"
 
 export default function AccountPage() {
 
-  const { user } = useContext(AuthDetails)
+  const { user, updateUser , logout } = useContext(AuthDetails)
   const [profile, setProfile] = useState({
     username: '',
     email: '',
@@ -18,7 +18,7 @@ export default function AccountPage() {
     current: '',
     new: ''
   })
-  const navigate = useNavigate
+  const navigate = useNavigate()
 
   // Redirect if not logged in
   useEffect(() => {
@@ -54,6 +54,7 @@ export default function AccountPage() {
     try{
       const userUpdate = {...userDefault, ...profile}
       const updated = await userAPI.update(userUpdate)
+      updateUser(updated)
     } catch(err){
       console.error(err)
     } finally {
@@ -74,6 +75,19 @@ export default function AccountPage() {
     } finally {
       //
     }
+  }
+
+  async function handleDeleteAccount(){
+    try {
+      await userAPI.delete(user.id)
+      logout()
+      navigate('/')
+    } catch(err) {
+        console.error(err)
+    } finally {
+      //
+    }
+
   }
 
   return (
@@ -179,10 +193,27 @@ export default function AccountPage() {
 
         </div>
 
+        {/* Delete User - Danger Zone*/}
+        <div className="danger-card">
+          <h2 className='danger-title'>Danger Zone</h2>
+          <div className="danger-row">
+            <div>
+              <p className='danger-label'>Delete Account</p>
+              <p className='danger-subtext'>
+                Permanently delete your account and all saved trips. This cannot be undone.
+              </p>
+            </div>
+            <button className='delete-button' onClick={handleDeleteAccount}>
+              Delete Account
+            </button>            
+          </div>
+        </div>
       </div>
     </div>
   )
 }
+
+
 
 
 

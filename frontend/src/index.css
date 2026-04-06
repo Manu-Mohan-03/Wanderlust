@@ -29,9 +29,9 @@ h1 {
   line-height: 1.1;
 }
 
-.map-view{
-  width: 100vw; 
-  height: 100vh; 
+.map-view {
+  width: 100vw;
+  height: 100vh;
   position: relative;
 
   .loading-badge {
@@ -48,6 +48,7 @@ h1 {
     z-index: 1000;
     box-shadow: var(--shadow);
   }
+
   .tooltip {
     position: fixed;
     background: rgba(15, 23, 42, 0.9);
@@ -65,8 +66,9 @@ h1 {
     .tooltip-sub {
       font-size: 12px;
       color: rgba(255, 255, 255, 0.7);
-    }    
-  }  
+    }
+  }
+
   .legs-badge {
     position: absolute;
     bottom: 70px;
@@ -93,6 +95,7 @@ h1 {
   z-index: 2000;
   overflow: hidden;
   min-width: 180px;
+
   .item {
     display: block;
     width: 100%;
@@ -105,6 +108,7 @@ h1 {
     color: var
   }
 }
+
 /*For the Header Component*/
 .header {
   /*Change 1*/
@@ -138,7 +142,8 @@ h1 {
       color: var(--text-primary);
       /*Change 1*/
       /* letter-spacing: -0.3px;*/
-      font-size: 18px;   /*Added*/
+      font-size: 18px;
+      /*Added*/
     }
   }
 
@@ -162,12 +167,14 @@ h1 {
       font-size: 14px;
       cursor: pointer;
     }
+
     .user-email {
       font-size: 14px;
       color: var(--text-secondary);
     }
+
     /*New*/
-    .usermenu{
+    .usermenu {
       position: relative;
 
       .icon-button {
@@ -177,7 +184,7 @@ h1 {
         cursor: pointer;
         padding: 4px 8px;
         border-radius: 6px;
-      }    
+      }
 
       .dropdown {
         position: absolute;
@@ -199,11 +206,13 @@ h1 {
             color: var(--text-secondary);
           }
         }
+
         .divider {
           margin: 0;
           border: none;
           border-top: 1px solid var(--border);
         }
+
         .dropdown-item {
           display: block;
           width: 100%;
@@ -215,6 +224,7 @@ h1 {
           font-size: 14px;
           color: var(--text-primary);
         }
+
         .signout-item {
           color: #ef4444;
         }
@@ -222,6 +232,7 @@ h1 {
     }
   }
 }
+
 /*Overlay/Backdrop for Login/Signin Modal dialog box*/
 .backdrop {
   position: fixed;
@@ -258,14 +269,14 @@ h1 {
       outline: none;
       color: var(--text-primary);
       background-color: var(--bg-secondary);
-    }  
+    }
 
     .error {
       color: #ef4444;
       font-size: 13px;
       margin: 0;
     }
-    
+
     .submit-btn {
       padding: 10px;
       border-radius: 6px;
@@ -276,7 +287,7 @@ h1 {
       font-size: 15px;
       cursor: pointer;
       margin-top: 4px;
-    }    
+    }
 
     .toggle {
       text-align: center;
@@ -288,11 +299,12 @@ h1 {
         color: var(--accent);
         cursor: pointer;
         font-weight: 600;
-      }    
+      }
     }
 
   }
 }
+
 /*Seperate CSS for Trip Save Modal*/
 .trip-save-modal {
   position: relative;
@@ -353,7 +365,8 @@ h1 {
       cursor: pointer;
       font-size: 14px;
       color: var(--text-primary);
-    }    
+    }
+
     .save-button {
       padding: 9px 18px;
       background: var(--accent);
@@ -367,35 +380,36 @@ h1 {
   }
 }
 
-  .page-header{ 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 28px;
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
 
-    .title {
-      font-size: 24px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin: 0;
-    }
-    .back-button { 
-      padding: 8px 16px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      color: var(--text-primary);
-    }
+  .title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
   }
 
-.page {  
+  .back-button {
+    padding: 8px 16px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+}
+
+.page {
   min-height: 100%;
   background: var(--bg-secondary);
   padding: 32px 24px;
 
-}  
+}
 
 /*For Trips Page*/
 .trips-container {
@@ -426,6 +440,7 @@ h1 {
           color: var(--text-primary);
         }
       }
+
       .legs-list {
         display: flex;
         flex-direction: column;
@@ -437,6 +452,7 @@ h1 {
           align-items: center;
           gap: 10px;
           font-size: 13px;
+
           .leg-seq {
             width: 20px;
             height: 20px;
@@ -463,6 +479,7 @@ h1 {
           }
         }
       }
+
       .card-actions {
         display: flex;
         justify-content: space-between;
@@ -480,6 +497,7 @@ h1 {
           font-size: 13px;
           font-weight: 600;
         }
+
         .delete-button {
           padding: 7px 10px;
           background: none;
@@ -489,7 +507,7 @@ h1 {
           font-size: 14px;
         }
       }
-    }      
+    }
   }
 }
 
@@ -515,6 +533,7 @@ h1 {
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border);
     }
+
     .field-group {
       margin-bottom: 16px;
 
@@ -525,11 +544,13 @@ h1 {
         color: var(--text-secondary);
         margin-bottom: 6px;
       }
+
       .readonly {
         font-size: 14px;
         color: var(--text-primary);
         padding: 10px 0;
       }
+
       .input {
         width: 100%;
         padding: 10px 12px;
@@ -542,6 +563,7 @@ h1 {
         outline: none;
       }
     }
+
     .card-footer {
       display: flex;
       justify-content: flex-end;
@@ -557,8 +579,68 @@ h1 {
         font-size: 14px;
         font-weight: 600;
       }
-    }    
+    }
   }
+
+  .danger-card {
+    background: var(--bg-primary);
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+
+    .danger-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #dc2626;
+      margin: 0 0 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #fecaca;
+    }
+
+    .danger-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+
+      .danger-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 4px;
+      }
+
+      .danger-subtext {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin: 0;
+      }
+
+      .delete-button {
+        padding: 9px 16px;
+        background: #dc2626;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+    }
+  }
+
+
+
+
+
+
+
+
+
+
 }
 
 
@@ -640,4 +722,3 @@ button:focus-visible {
     animation: logo-spin infinite 20s linear;
   }
 } */
-
