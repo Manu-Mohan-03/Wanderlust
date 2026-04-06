@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-export default function TripSaveModal({ onClose, onSave }) {
+export default function TripSaveModal({ onClose, onSave, saving }) {
 
     const [ name, setName ] = useState('')
 
@@ -27,9 +27,11 @@ export default function TripSaveModal({ onClose, onSave }) {
                     </button>
                     <button
                         className="save-button"
+                        style={{ opacity: saving ? 0.7 : 1 }}
                         onClick={handleSave}
+                        disabled={saving}
                     >
-                        💾 Save Trip
+                        {saving ? 'Saving...' : '💾 Save Trip'}
                     </button>
                 </div>                      
             </div>
