@@ -1,5 +1,5 @@
 import { createContext, useState } from "react";
-import { authAPI } from "../services/api";
+import { userAPI } from "../services/api";
 
 
 const AuthDetails = createContext(null)
@@ -11,7 +11,7 @@ export default function AuthContext({children}){
     async function login(email,password){
         // const res = await authAPI.login({ email, password })
         // const user = res.data
-        const user = await authAPI.login({ email, password })
+        const user = await userAPI.login({ email, password })
         setUser({...user, name: user?.username?? 'Anon'})
         console.log("Logged In:")
         return user
@@ -25,7 +25,7 @@ export default function AuthContext({children}){
     async function register(email,password){
         // const res = await authAPI.register({ email, password })
         // const user = res.data
-        const user = await authAPI.register({ email, password })
+        const user = await userAPI.register({ email, password })
         setUser({...user, name: user?.username?? 'ANON'})  
         console.log("Registered")   
         return user          

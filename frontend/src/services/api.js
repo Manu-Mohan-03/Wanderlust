@@ -43,10 +43,10 @@ export const airportAPI = {
     getRoutes: (iata)=>request('GET', `/flights/${iata}/airport`) 
 }
 
-export const authAPI = {
+export const userAPI = {
     login: (creds) => request('POST', '/user/login', creds),
     register: (creds) => request('POST', '/user', creds),
-    logout: null
+    update: (userData) => request('PUT', '/unknown', userData )
 }
 
 export const tripAPI = {
