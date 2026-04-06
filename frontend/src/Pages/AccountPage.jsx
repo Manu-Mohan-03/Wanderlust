@@ -3,60 +3,60 @@
 
 export default function AccountPage() {
   return (
-    <div className="xxx">
-      <div className="xxx">
+    <div className="account-page">
+      <div className="container">
 
         {/* Page header */}
-        <div className=''>
-          <h1 className=''>My Account</h1>
-          <button className='' onClick={() => navigate('/')}>
+        <div className='page-header'>
+          <h1 className='title'>My Account</h1>
+          <button className='back-button' onClick={() => navigate('/')}>
             ← Back to Map
           </button>
         </div>
 
         {/* ── Profile section ── */}
-        <div className=''>
+        <div className='card'>
           <h2 className='section-title'>Profile</h2>
 
           {/* Email — display only */}
-          <div className=''>
-            <label className=''>Email</label>
-            <div className=''>email@email.com</div>
+          <div className='field-group'>
+            <label className='label'>Email</label>
+            <div className='readonly'>email@email.com</div>
           </div>
 
           {/* Username */}
-          <div className=''>
-            <label className=''>Username</label>
+          <div className='field-group'>
+            <label className='label'>Username</label>
             <input
-              className=''
+              className='input'
               type="text"
               placeholder="Enter a username"
             />
           </div>
 
           {/* City */}
-          <div className=''>
-            <label className=''>City</label>
+          <div className='field-group'>
+            <label className='label'>City</label>
             <input
-              className=''
+              className='input'
               type="text"
               placeholder="Your city"
             />
           </div>
 
           {/* Country */}
-          <div className=''>
-            <label className=''>Country</label>
+          <div className='field-group'>
+            <label className='label'>Country</label>
             <input
-              className=''
+              className='input'
               type="text"
               placeholder="Your country"
             />
           </div>       
 
-          <div className=''>
+          <div className='card-footer'>
             <button
-              className=''
+              className='save-button'
             >
               Save Changes
             </button>
@@ -64,35 +64,35 @@ export default function AccountPage() {
         </div>
 
         {/* ── Change password section ── */}
-        <div className=''>
+        <div className='card'>
           <h2 className='section-title'>Change Password</h2>
-          <div className=''>
-            <label className=''>Current Password</label>
+          <div className='field-group'>
+            <label className='label'>Current Password</label>
             <input
-              className=''
+              className='input'
               type="password"
               placeholder="Enter current password"
             />
           </div> 
-          <div className=''>
-            <label className=''>New Password</label>
+          <div className='field-group'>
+            <label className='label'>New Password</label>
             <input
-              className=''
+              className='input'
               type="password"
               placeholder="password"
             />
           </div>    
 
-          <div className=''>
+          <div className='card-footer'>
             <button
-              className=''
+              className='save-button'
             >
               Update Password
             </button>
           </div>
 
         </div>
-        
+
       </div>
     </div>
   )

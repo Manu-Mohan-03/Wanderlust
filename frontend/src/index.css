@@ -367,6 +367,29 @@ h1 {
   }
 }
 
+  .page-header{ 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+    .back-button { 
+      padding: 8px 16px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+  }
+
 /*Trips Page*/
 
 .trips-page {  
@@ -378,28 +401,6 @@ h1 {
     max-width: 800px;
     margin: 0 auto;
 
-    .page-header{ 
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 28px;
-
-      .title- {
-        font-size: 24px;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin: 0;
-      }
-      .back-button { 
-        padding: 8px 16px;
-        background: var(--bg-primary);
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        color: var(--text-primary);
-      }
-    }
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
