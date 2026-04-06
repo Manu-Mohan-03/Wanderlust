@@ -17,7 +17,11 @@ export default function App() {
           <BrowserRouter>
             <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
               <Header/>
-              <main style={{ flex: 1, overflow: 'hidden' }}> 
+              <main style={{ 
+                flex: 1, 
+                overflowX: 'hidden', 
+                overflowY: 'auto'
+              }}> 
                 <Routes>
                   <Route path='/' element={<MapPage />}/>
                   <Route path='/account' element={<AccountPage/>}/>

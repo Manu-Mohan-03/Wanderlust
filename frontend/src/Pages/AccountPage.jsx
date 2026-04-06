@@ -3,8 +3,8 @@
 
 export default function AccountPage() {
   return (
-    <div className="account-page">
-      <div className="container">
+    <div className="page">
+      <div className="account-container">
 
         {/* Page header */}
         <div className='page-header'>
@@ -97,3 +97,8 @@ export default function AccountPage() {
     </div>
   )
 }
+
+
+
+
+

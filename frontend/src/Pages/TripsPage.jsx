@@ -37,9 +37,9 @@ export default function TripsPage() {
 
 
     return (
-        <div className="trips-page">    
+        <div className="page">    
             {/* Seperate Div to seperate background and content*/}
-            <div className='container'>      
+            <div className='trips-container'>      
                 <div className="page-header">
                     <h1 className="title">My Trips</h1>
                     <button className="back-button" onClick={() => navigate('/')}>
