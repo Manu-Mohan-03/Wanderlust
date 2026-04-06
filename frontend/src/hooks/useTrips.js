@@ -50,8 +50,8 @@ export function useTrips() {
   const [trips, setTrips] = useState([])
 
   async function saveTrip(legs, userId, tripName) {
-    // setLoading(true)
-    // setError(null)
+    setLoading(true)
+    setError(null)
     try {
       console.log("Confirm useTrips")
       const requestBody = toTripIn(legs, userId, tripName)
@@ -60,26 +60,26 @@ export function useTrips() {
       // setTrips(prev => [saved])
       return saved
     } catch (err) {
-      // setError('Failed to save trip')
+      setError('Failed to save trip')
       console.error(err)
       throw err
     } finally {
-      // setLoading(false)
+      setLoading(false)
     }
   }
 
   async function fetchTrips(userId) {
-    // setLoading(true)
-    // setError(null)    
+    setLoading(true)
+    setError(null)    
     try {
       const data = await tripAPI.getAll(userId) 
       setTrips(data)
     } catch (err) {
-      // setError('Failed to load trip')
+      setError('Failed to load trip')
       console.error(err)
       throw err
     } finally {
-      // setLoading(false)
+      setLoading(false)
     }
   }
 
@@ -98,7 +98,8 @@ export function useTrips() {
     saveTrip,
     fetchTrips,
     toTripLegs,  // exported so TripsPage can use it
-    deleteTrip
+    deleteTrip,
+    loading
   }
 
 }

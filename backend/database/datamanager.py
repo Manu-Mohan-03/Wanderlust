@@ -99,7 +99,7 @@ class UserRepository:
 
         user = self.select_user_by_cred(user_in.username, user_in.email)
         if user:
-            raise ValueError("User Data already exists.")
+            raise ValueError("User already exists.")
         if not user_in.username and user_in.email:
             user_in.username = user_in.email
         user = UserSchema(**user_in.model_dump())

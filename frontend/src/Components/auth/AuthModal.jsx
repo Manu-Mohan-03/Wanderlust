@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AuthDetails } from '../../context/AuthContext'
 
 export default function AuthModal({ onClose }) {
@@ -40,12 +40,21 @@ export default function AuthModal({ onClose }) {
                 await register(email,password)
             }
             onClose()
-        } catch(error) {
-            setError(error.message || 'Something went wrong')
+        } catch(err) {
+            setError(err.message || 'Something went wrong')
         } finally {
             setLoading(false)
         }
     }
+    // Close on Escape key
+    useEffect(() => {
+        function handleKey(e){
+            if (e.key === 'Escape') onClose() 
+            // if (e.key === 'Enter') handleSubmit()    
+        }        
+        document.addEventListener('keydown', handleKey)
+        return () => document.removeEventListener('keydown', handleKey)        
+    },[])
 
     return (    
         <div className='backdrop' onClick={onClose}>  
@@ -66,9 +75,11 @@ export default function AuthModal({ onClose }) {
                     value={password}
                     onChange={ e => setPassword(e.target.value) }
                 />    
-                {error && <p className='error'>{error}</p>}            
+                {error && <p className='error'>{error}</p>} 
+                {/* Submit */}           
                 <button 
                     className='submit-btn'
+                    style = {{ opacity: loading ? 0.7 : 1 }}
                     onClick={handleSubmit}
                     disabled={loading}
                 >
