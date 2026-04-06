@@ -62,23 +62,27 @@ export default function MapView() {
         if (!selectedAirport) return
         if(route === selectedRoute) return // Onclicking same route again do nothing for now
         // setSelectedRoute([...historyRoute, route]) // Old way without using context
-        // addLeg({ from: route.from, to: route.to, flightId: route.flightId }) // Commented as more details needed 
+        // //addLeg({ from: route.from, to: route.to, flightId: route.flightId }) // Commented as more details needed 
         // Find full airport details (has city) from airports list
-        const fromAirportDetails = airports.find(a => a.id === route.from.id) ?? route.from
-        const toAirportDetails   = airports.find(a => a.id === route.to.id)   ?? route.to
-        addLeg({
-            from: { ...route.from, city: fromAirportDetails.city },
-            to: { ...route.to,   city: toAirportDetails.city },
-            flightId: route.flightId,
-        })
+        // const fromAirportDetails = airports.find(a => a.id === route.from.id) ?? route.from
+        // const toAirportDetails   = airports.find(a => a.id === route.to.id)   ?? route.to
+        // addLeg({
+        //     from: { ...route.from, city: fromAirportDetails.city },
+        //     to: { ...route.to,   city: toAirportDetails.city },
+        //     flightId: route.flightId,
+        // }) 
+        // The above code no more needed as backend adjusted and useRoutes handles it.
+        addLeg({ from : route.from, to: route.to, flightId: route.flightId })
         
     },[selectedAirport]) // ,historyRoute])    
 
+    // Right click — show context menu
     function handleContextMenu(e){
         e.preventDefault()
         setContextMenu({ x: e.clientX, y: e.clientY })
     }
 
+    // Clear All
     const handleClearAll = useCallback(() => {
         clearRoutes()
         setSelectedAirport(null)

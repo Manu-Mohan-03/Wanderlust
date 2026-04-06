@@ -7,14 +7,16 @@ function normalise(raw) {
         flightId: raw.flight_id,
         airline: raw.airline,
         from: {
-            id: raw.orig_airport_details.airport_key,
+            id: raw.orig_airport,
             name: raw.orig_airport_details.name,
+            city: raw.orig_airport_details.city.name,  // Added to include city details
             latitude: raw.orig_airport_details.latitude,
             longitude: raw.orig_airport_details.longitude,
         },
         to: {
-            id: raw.dest_airport_details.airport_key,
+            id: raw.dest_airport,
             name: raw.dest_airport_details.name,
+            city: raw.dest_airport_details.city.name, // Added to include city details
             latitude: raw.dest_airport_details.latitude,
             longitude: raw.dest_airport_details.longitude,
         },

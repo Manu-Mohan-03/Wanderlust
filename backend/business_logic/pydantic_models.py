@@ -62,6 +62,37 @@ class AirlineModel(BaseModel):
         "from_attributes": True
     }
 
+class AllCountryModel(BaseModel):
+    country_key: str
+    name: str
+    model_config = {
+        "from_attributes": True,
+        "extra": "ignore"
+    }
+
+
+class AllCityModel(BaseModel):
+    name: str
+    country_key: str
+    timezone: str
+    country: AllCountryModel
+    model_config = {
+        "from_attributes": True,
+        "extra": "ignore"
+    }
+
+class AllAirportModel(BaseModel):
+    airport_key: str
+    name: str
+    tier: int | None = None
+    city_key: str | None
+    latitude: float
+    longitude: float
+    city: AllCityModel | None
+    model_config = {
+        "from_attributes": True,
+        "extra": "ignore"
+    }
 
 class RouteModel(BaseModel):
     # Master Table (Schedules)
@@ -75,8 +106,8 @@ class RouteModel(BaseModel):
     planetype: str | None
     operates: str | None
     validity: str | None
-    orig_airport_details: AirportModel
-    dest_airport_details: AirportModel
+    orig_airport_details: AllAirportModel
+    dest_airport_details: AllAirportModel
     model_config = {
         "from_attributes": True
     }
@@ -243,37 +274,4 @@ class UserUpdate(BaseModel):
     password: str | None = None
     model_config = {
         "from_attributes": True
-    }
-
-
-class AllCountryModel(BaseModel):
-    country_key: str
-    name: str
-    model_config = {
-        "from_attributes": True,
-        "extra": "ignore"
-    }
-
-
-class AllCityModel(BaseModel):
-    name: str
-    country_key: str
-    timezone: str
-    country: AllCountryModel
-    model_config = {
-        "from_attributes": True,
-        "extra": "ignore"
-    }
-
-class AllAirportModel(BaseModel):
-    airport_key: str
-    name: str
-    tier: int | None = None
-    city_key: str | None
-    latitude: float
-    longitude: float
-    city: AllCityModel | None
-    model_config = {
-        "from_attributes": True,
-        "extra": "ignore"
     }
