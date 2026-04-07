@@ -655,7 +655,7 @@ h1 {
     }
   }
 }
-
+/* For Loading/Error/ No trips @ Trips Page*/
 .info-message {
   text-align: center;
   color: var(--text-secondary);
@@ -699,10 +699,6 @@ h1 {
     font-size: 14px;
   }
 }
-
-
-
-
 
 /* a {
   font-weight: 500;

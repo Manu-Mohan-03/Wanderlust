@@ -1,5 +1,6 @@
 import { useState, useCallback, useContext } from 'react'
 import Map from 'react-map-gl/maplibre';
+// import { NavigationControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 // import { DeckGL } from '@deck.gl/react'
@@ -176,7 +177,10 @@ export default function MapView() {
                     return 'grab'
                 }}
             >
-                <Map mapStyle={mapStyle} />
+                <Map 
+                    mapStyle={mapStyle}
+                />
+                {/* </Map>     */}
             </DeckGL>
 
             {/* Airport tooltip */}
