@@ -9,7 +9,7 @@ export default function TripsPage() {
 
     const navigate = useNavigate()
     const { loadTrip } = useContext(TripDetails)    
-    const { trips, fetchTrips, toTripLegs, deleteTrip } = useTrips()
+    const { trips, fetchTrips, toTripLegs, deleteTrip, loading, error } = useTrips()
     const { user } = useContext(AuthDetails)
     
     // Redirect if not logged in
@@ -17,6 +17,12 @@ export default function TripsPage() {
         if (!user)
             navigate('/')
     }, [user])
+
+    // Load trips on mount
+    useEffect(() => {
+        if (user) 
+            fetchTrips(user.id)
+    },[user])    
 
     function handleLoad(trip){
         const legs = toTripLegs(trip)
@@ -28,13 +34,6 @@ export default function TripsPage() {
         e.stopPropagation()
         await deleteTrip(tripId)
     }
-
-    // Load trips on mount
-    useEffect(() => {
-        if (user) 
-            fetchTrips(user.id)
-    },[user])
-
 
     return (
         <div className="page">    

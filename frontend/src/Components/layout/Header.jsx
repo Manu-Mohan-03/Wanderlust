@@ -22,9 +22,13 @@ export default function Header() {
     // For usermenu handling : clicking outside the menu 
     const menuRef = useRef(null)
     // For Saving the trips
-    const { saveTrip, loading: saving } = useTrips()
+    const { saveTrip, loading: saving, error } = useTrips()
     // To get the trip legs selected
     const { currentLeg: selectedLegs } = useContext(TripDetails)
+    // For notifing save success
+    const [saveSuccess,   setSaveSuccess] = useState(false)
+    const [showSaveStatus, setShowSaveStatus] = useState('')
+
 
     function goTo(path) {
         setMenuOpen(false)
@@ -53,11 +57,19 @@ export default function Header() {
     }, [])
     // For Saving the Trip Legs along with the trip-name (optional) from the Modal
     async function handleConfirmSave(tripName) {
+        setShowSaveStatus(true)
         try {
             const newTrip = await saveTrip(selectedLegs, user.id, tripName)
             setShowSaveModal(false)
-        } catch {
-            // error handled inside useTrips
+            setSaveSuccess(true)
+            setTimeout(() => {
+                setShowSaveStatus(false)
+                setSaveSuccess(false)
+            }, 3000)
+        } catch(err) {
+            setTimeout(() => {
+                setShowSaveStatus(false)
+            },3000)
         }
     }
 
@@ -140,6 +152,16 @@ export default function Header() {
                 loading={saving}
             />
             }
+            {showSaveStatus && (
+                <div 
+                    className='save-status'
+                    style={{ background: saveSuccess ?  '#22c55e' : error ? '#ef4444' : saving && '#f59e0b'}}
+                >
+                    {/* Success / Error / Saving */}
+                    { saveSuccess ? '✓ Trip Saved!' : saving ? "Saving..." : error }
+                </div>
+            )}
+
         </>
     )
 }

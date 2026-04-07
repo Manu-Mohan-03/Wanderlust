@@ -99,7 +99,8 @@ export function useTrips() {
     fetchTrips,
     toTripLegs,  // exported so TripsPage can use it
     deleteTrip,
-    loading
+    loading, // used by Header as saving
+    error
   }
 
 }
