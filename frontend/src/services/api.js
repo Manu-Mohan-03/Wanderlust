@@ -46,8 +46,8 @@ export const airportAPI = {
 export const userAPI = {
     login: (creds) => request('POST', '/user/login', creds),
     register: (creds) => request('POST', '/user', creds),
-    update: (userData) => request('PUT', '/unknown', userData ),
-    delete: (id) => request('DELETE', `/unknown/${id}` )
+    update: (userData) => request('PUT', '/user', userData ),
+    delete: (id) => request('DELETE', `/user/${id}` )
 }
 
 export const tripAPI = {

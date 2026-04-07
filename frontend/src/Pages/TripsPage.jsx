@@ -14,8 +14,7 @@ export default function TripsPage() {
     
     // Redirect if not logged in
     useEffect(() => {
-        if (!user)
-            navigate('/')
+        if (!user) navigate('/')
     }, [user])
 
     // Load trips on mount

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 
 import AuthModal from '../auth/AuthModal'
 import { AuthDetails } from '../../context/AuthContext'
@@ -26,8 +26,10 @@ export default function Header() {
     // To get the trip legs selected
     const { currentLeg: selectedLegs } = useContext(TripDetails)
     // For notifing save success
-    const [saveSuccess,   setSaveSuccess] = useState(false)
+    const [saveSuccess, setSaveSuccess] = useState(false)
     const [showSaveStatus, setShowSaveStatus] = useState('')
+    // To determine whether to show Save button or not based on page
+    const location = useLocation()
 
 
     function goTo(path) {
@@ -66,17 +68,17 @@ export default function Header() {
                 setShowSaveStatus(false)
                 setSaveSuccess(false)
             }, 3000)
-        } catch(err) {
+        } catch (err) {
             setTimeout(() => {
                 setShowSaveStatus(false)
-            },3000)
+            }, 3000)
         }
     }
 
-    function disableSave(){
-        if (saving) return true
-        return selectedLegs.length > 0 ? false : true
-    }
+    const disabledRoutes =  ['/account', '/trips']
+
+    const isSaveButtonVisible = 
+        selectedLegs.length > 0 && !disabledRoutes.includes(location.pathname)
 
     return (
         <>
@@ -118,13 +120,15 @@ export default function Header() {
                                         🗺️ My Trips
                                     </button>
                                     <hr className='divider' />
-                                    <button
-                                        className='dropdown-item'
-                                        onClick={handleSaveClick}
-                                        disabled={disableSave()}
-                                    >
-                                        💾 Save Trip
-                                    </button>
+                                    {isSaveButtonVisible &&                                 
+                                        <button
+                                            className='dropdown-item'
+                                            onClick={handleSaveClick}
+                                            disabled={saving}
+                                        >
+                                            💾 Save Trip
+                                        </button>
+                                    }
                                     <hr className='divider' />
                                     <button
                                         className='dropdown-item signout-item'
@@ -153,12 +157,12 @@ export default function Header() {
             />
             }
             {showSaveStatus && (
-                <div 
+                <div
                     className='save-status'
-                    style={{ background: saveSuccess ?  '#22c55e' : error ? '#ef4444' : saving && '#f59e0b'}}
+                    style={{ background: saveSuccess ? '#22c55e' : error ? '#ef4444' : saving && '#f59e0b' }}
                 >
                     {/* Success / Error / Saving */}
-                    { saveSuccess ? '✓ Trip Saved!' : saving ? "Saving..." : error }
+                    {saveSuccess ? '✓ Trip Saved!' : saving ? "Saving..." : error}
                 </div>
             )}
 

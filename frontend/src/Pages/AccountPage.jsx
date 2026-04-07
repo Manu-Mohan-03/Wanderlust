@@ -7,7 +7,7 @@ import { userAPI } from "../services/api"
 
 export default function AccountPage() {
 
-  const { user, updateUser , logout } = useContext(AuthDetails)
+  const { user, updateUser, logout } = useContext(AuthDetails)
   const [profile, setProfile] = useState({
     username: '',
     email: '',
@@ -37,58 +37,63 @@ export default function AccountPage() {
     }
   }, [user])
 
-  const userDefault = {
-    id: user.id,
-    username: null,
-    email: null,
-    role: user.role,
-    city: null,
-    country: null,
-    dark_mode: user.dark_mode ?? false,
-    map_mode: user.map_mode ?? false,
-    date_tolerance: user.date_tolerance ?? null,
-    password: null
+  const userDefault = () => {
+    return {
+      id: user.id,
+      username: null,
+      email: null,
+      role: user.role,
+      city: null,
+      country: null,
+      dark_mode: user.dark_mode ?? false,
+      map_mode: user.map_mode ?? false,
+      date_tolerance: user.date_tolerance ?? null,
+      password: null
+    }
   }
 
   async function handleProfileSave() {
-    try{
-      const userUpdate = {...userDefault, ...profile}
+    try {
+      const userUpdate = { ...userDefault(), ...profile }
       const updated = await userAPI.update(userUpdate)
       updateUser(updated)
-    } catch(err){
+    } catch (err) {
       console.error(err)
     } finally {
       //
     }
   }
 
-  async function handleChangePassword(){
-    if (!passwords.current && !passwords.new) {
+  async function handleChangePassword() {
+    if (passwords.current && passwords.new) {
+      try {
+        const userUpdate = { ...userDefault(), password: passwords.new }
+        await userAPI.update(userUpdate)
+        setPasswords({ current: '', next: '', confirm: '' })
+      } catch (err) {
+        console.error(err)
+      } finally {
+        //
+      }
+    } else {
       // Error message
     }
-    try {      
-      const userUpdate = {...userDefault, password: passwords.new }
-      await userAPI.update(userUpdate)
-      setPasswords({ current: '', next: '', confirm: '' })
-    } catch(err){
-      console.error(err)
-    } finally {
-      //
-    }
   }
 
-  async function handleDeleteAccount(){
+  async function handleDeleteAccount() {
     try {
       await userAPI.delete(user.id)
       logout()
       navigate('/')
-    } catch(err) {
-        console.error(err)
+    } catch (err) {
+      console.error(err)
     } finally {
       //
     }
 
   }
+
+  if (!user) return null
 
   return (
     <div className="page">
@@ -205,7 +210,7 @@ export default function AccountPage() {
             </div>
             <button className='delete-button' onClick={handleDeleteAccount}>
               Delete Account
-            </button>            
+            </button>
           </div>
         </div>
       </div>

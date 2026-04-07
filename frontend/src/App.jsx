@@ -1,6 +1,6 @@
 import MapPage from "./pages/MapPage"
 import { lightTheme } from './styles/theme'
-import ThemeProvider from "./styles/ThemeProvider"
+import ThemeContext from "./context/ThemeContext"
 import Header from './components/layout/Header'
 import AuthContext from "./context/AuthContext"
 import TripContext from "./context/TripContext"
@@ -11,7 +11,7 @@ import TripsPage from "./pages/TripsPage"
 
 export default function App() {
   return (
-    <ThemeProvider theme={lightTheme}>
+    <ThemeContext theme={lightTheme}>
       <AuthContext>
         <TripContext>
           <BrowserRouter>
@@ -32,6 +32,6 @@ export default function App() {
           </BrowserRouter>
         </TripContext>
       </AuthContext>
-    </ThemeProvider>
+    </ThemeContext>
   )
 }

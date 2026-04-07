@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { userAPI } from "../services/api";
 
 
@@ -7,6 +7,7 @@ const AuthDetails = createContext(null)
 export default function AuthContext({children}){
 
     const [user, setUser] = useState(null)
+    const [loading, setLoading] = useState(true)
 
     async function login(email,password){
         // const res = await authAPI.login({ email, password })
@@ -36,6 +37,10 @@ export default function AuthContext({children}){
         const merged = {...user, ...updatedUser}
         setUser(merged)
     }
+
+    // useEffect(() => {
+    //     setLoading(false)
+    // },[])
 
     return (
         <AuthDetails.Provider value={{ user, login, register, logout, updateUser }}>
