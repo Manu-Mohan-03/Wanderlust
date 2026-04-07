@@ -121,7 +121,7 @@ export default function Header() {
                                     <button
                                         className='dropdown-item'
                                         onClick={handleSaveClick}
-                                        disabled={disableSave}
+                                        disabled={disableSave()}
                                     >
                                         💾 Save Trip
                                     </button>
