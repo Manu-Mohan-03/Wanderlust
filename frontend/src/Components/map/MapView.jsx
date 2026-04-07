@@ -13,6 +13,8 @@ import ContextMenu from './ContextMenu'
 import { TripDetails } from '../../context/TripContext'
 import { Theme } from '../../context/ThemeContext';
 
+import SearchPanel from './SearchPanel' // added for search
+
 
 const INITIAL_VIEW = {
     longitude: 0,
@@ -182,6 +184,9 @@ export default function MapView() {
                 />
                 {/* </Map>     */}
             </DeckGL>
+
+            {/* Search panel — top left, above map */}
+            <SearchPanel />
 
             {/* Airport tooltip */}
             {hoveredAirport && (
