@@ -45,6 +45,24 @@ export default function TripsPage() {
                         ← Back to Map
                     </button>
                 </div>
+
+                {loading && (
+                    <div className='info-message'>Loading your trips...</div>
+                )}
+                {error && (
+                    <div className='error-message'>{error}</div>
+                )}    
+
+                {!loading && !error && trips.length === 0 && (
+                <div className='empty-state'>
+                    <div className='empty-icon'>🗺️</div>
+                    <p className='empty-text'>No saved trips yet</p>
+                    <button className='goto-map-button' onClick={() => navigate('/')}>
+                        Start Planning
+                    </button>
+                </div>
+                )}                
+
                 <div className="grid">
                     {trips.map(trip => (
                         <div key = {trip.trip_id} className="card">
