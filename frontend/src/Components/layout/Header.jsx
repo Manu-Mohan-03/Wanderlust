@@ -6,6 +6,7 @@ import { AuthDetails } from '../../context/AuthContext'
 import TripSaveModal from '../trips/TripSaveModal'
 import { useTrips } from '../../hooks/useTrips'
 import { TripDetails } from '../../context/TripContext'
+import { Theme } from '../../context/ThemeContext'
 
 
 export default function Header() {
@@ -80,6 +81,8 @@ export default function Header() {
     const isSaveButtonVisible = 
         selectedLegs.length > 0 && !disabledRoutes.includes(location.pathname)
 
+    const { toggleTheme, isDark } = useContext(Theme)    
+
     return (
         <>
             <header className='header'>
@@ -94,9 +97,10 @@ export default function Header() {
                     {/* Theme toggle — always visible */}
                     <button
                         className='toggle-theme'
-                        title='Switch to dark mode'
+                        title={ isDark ? 'Switch to light mode' : 'Switch to dark mode' }
+                        onClick={() => toggleTheme()}
                     >
-                        🌙
+                        {isDark ? '☀️' : '🌙'}
                     </button>
                     {user ? (                        
                         <div className='usermenu' ref={menuRef}>

@@ -1,5 +1,4 @@
 import MapPage from "./pages/MapPage"
-import { lightTheme } from './styles/theme'
 import ThemeContext from "./context/ThemeContext"
 import Header from './components/layout/Header'
 import AuthContext from "./context/AuthContext"
@@ -11,7 +10,7 @@ import TripsPage from "./pages/TripsPage"
 
 export default function App() {
   return (
-    <ThemeContext theme={lightTheme}>
+    <ThemeContext>
       <AuthContext>
         <TripContext>
           <BrowserRouter>

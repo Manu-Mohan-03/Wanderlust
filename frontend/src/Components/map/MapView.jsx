@@ -10,8 +10,8 @@ import { useAirports } from '../../hooks/useAirports'
 import { useRoutes } from '../../hooks/useRoutes'
 import ContextMenu from './ContextMenu'
 import { TripDetails } from '../../context/TripContext'
+import { Theme } from '../../context/ThemeContext';
 
-const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'
 
 const INITIAL_VIEW = {
     longitude: 0,
@@ -30,7 +30,7 @@ export default function MapView() {
     // To display airport details on hovering over dots
     const [hoveredAirport, setHoveredAirport] = useState(null)  // { id, name, city, country, x, y }
     // for airport click
-    const [selectedAirport, setSelectedAirport] = useState(null)  
+    const [selectedAirport, setSelectedAirport] = useState(null)
     // To get the flight routes from backend
     const { routes, fetchRoutes, clearRoutes } = useRoutes()
     // For ContextMenu the right Click
@@ -50,7 +50,7 @@ export default function MapView() {
     const handleAirportClick = useCallback((airport) => {
         if (airport === selectedAirport) return
         setSelectedAirport(airport)
-        fetchRoutes(airport.id) 
+        fetchRoutes(airport.id)
         // if (selectedRoute){
         //     // add leg
         //     setHistoryRoute(selectedRoute)
@@ -60,7 +60,7 @@ export default function MapView() {
     // ── Route click — select a specific flight path ────────────────
     const handleRouteClick = useCallback((route) => {
         if (!selectedAirport) return
-        if(route === selectedRoute) return // Onclicking same route again do nothing for now
+        if (route === selectedRoute) return // Onclicking same route again do nothing for now
         // setSelectedRoute([...historyRoute, route]) // Old way without using context
         // //addLeg({ from: route.from, to: route.to, flightId: route.flightId }) // Commented as more details needed 
         // Find full airport details (has city) from airports list
@@ -72,12 +72,12 @@ export default function MapView() {
         //     flightId: route.flightId,
         // }) 
         // The above code no more needed as backend adjusted and useRoutes handles it.
-        addLeg({ from : route.from, to: route.to, flightId: route.flightId })
-        
-    },[selectedAirport]) // ,historyRoute])    
+        addLeg({ from: route.from, to: route.to, flightId: route.flightId })
+
+    }, [selectedAirport]) // ,historyRoute])    
 
     // Right click — show context menu
-    function handleContextMenu(e){
+    function handleContextMenu(e) {
         e.preventDefault()
         setContextMenu({ x: e.clientX, y: e.clientY })
     }
@@ -113,7 +113,7 @@ export default function MapView() {
                     : null
                 )
             },
-            onClick: ({ object }) => object && handleRouteClick(object),           
+            onClick: ({ object }) => object && handleRouteClick(object),
         }),
 
         // 2. Selected trip arc
@@ -146,9 +146,15 @@ export default function MapView() {
             onClick: ({ object }) => object && handleAirportClick(object),
             updateTriggers: {
                 getFillColor: [selectedAirport?.id]
-            },            
+            },
         })
     ]
+
+    const { isDark } = useContext(Theme)
+
+    const mapStyle = isDark
+        ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
+        : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'    
 
     return (
         <div
@@ -166,18 +172,18 @@ export default function MapView() {
                 layers={layers}
                 style={{ position: 'absolute', inset: 0 }}
                 getCursor={({ isHovering, isDragging }) => {
-                    if (isHovering)   return 'pointer'
+                    if (isHovering) return 'pointer'
                     return 'grab'
-                }}                
+                }}
             >
-                <Map mapStyle={MAP_STYLE} />
+                <Map mapStyle={mapStyle} />
             </DeckGL>
 
             {/* Airport tooltip */}
             {hoveredAirport && (
                 <div
                     className='tooltip'
-                    style={{ left: hoveredAirport.x + 12, top: hoveredAirport.y }} 
+                    style={{ left: hoveredAirport.x + 12, top: hoveredAirport.y }}
                 >
                     <strong>{hoveredAirport.id}</strong>
                     <span className='tooltip-sub'>{hoveredAirport.city}, {hoveredAirport.country}</span>
@@ -186,10 +192,10 @@ export default function MapView() {
 
             {/* Route tooltip */}
             {hoveredRoute && !hoveredAirport && (
-                <div  className='tooltip' style={{ left: hoveredRoute.x + 12, top: hoveredRoute.y + 15 }}>
+                <div className='tooltip' style={{ left: hoveredRoute.x + 12, top: hoveredRoute.y + 15 }}>
                     <strong>{hoveredRoute.label}</strong>
                 </div>
-            )}            
+            )}
 
             {/* Right-click context menu */}
             {contextMenu && (
@@ -206,7 +212,7 @@ export default function MapView() {
                 <div className='legs-badge'>
                     {selectedRoute.length} leg{selectedRoute.length > 1 ? 's' : ''} selected
                 </div>
-            )}            
+            )}
         </div>
     )
 }

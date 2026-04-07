@@ -150,7 +150,7 @@ h1 {
   .right {
     display: flex;
     align-items: center;
-     gap: 10px; 
+    gap: 10px; 
 
     .toggle-theme {
       font-size: 18px;
