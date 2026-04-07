@@ -150,8 +150,17 @@ h1 {
   .right {
     display: flex;
     align-items: center;
-    /*Change 1*/
-    /* gap: 12px; */
+     gap: 10px; 
+
+    .toggle-theme {
+      font-size: 18px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      padding: 5px 9px;
+      line-height: 1;
+    }
 
     .login-button {
       /*Change 1*/
@@ -690,6 +699,8 @@ h1 {
     font-size: 14px;
   }
 }
+
+
 
 
 

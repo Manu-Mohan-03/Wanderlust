@@ -91,13 +91,14 @@ export default function Header() {
 
                 {/* Right — Login Button*/}
                 <div className='right'>
-                    {user ? (
-                        // <> 
-                        //     <span className='user-email'>{user.email}</span>
-                        //     <button className="btn" onClick={logout}>
-                        //         Sign Out
-                        //     </button>                        
-                        // </>
+                    {/* Theme toggle — always visible */}
+                    <button
+                        className='toggle-theme'
+                        title='Switch to dark mode'
+                    >
+                        🌙
+                    </button>
+                    {user ? (                        
                         <div className='usermenu' ref={menuRef}>
                             <button
                                 className='icon-button'
