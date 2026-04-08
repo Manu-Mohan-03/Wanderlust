@@ -186,7 +186,9 @@ export default function MapView() {
             </DeckGL>
 
             {/* Search panel — top left, above map */}
-            <SearchPanel />
+            <SearchPanel 
+                onAirportSelect={airport => setSelectedAirport(airport)}
+            />
 
             {/* Airport tooltip */}
             {hoveredAirport && (

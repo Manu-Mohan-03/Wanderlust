@@ -20,7 +20,16 @@ export function useAirportSearch() {
                 // const data = allAirports
                 // Normalise to flat shape
                 const searchResults = filterAirports(allAirports, searchQuery)
-                setResults(searchResults)
+                // setResults(searchResults)
+                setResults(searchResults.map(a => ({
+                    id: a.airport_key,
+                    name: a.name,
+                    city: a.city?.name ?? a.city_key,
+                    country: a.city?.country?.name ?? '',
+                    latitude: a.latitude,
+                    longitude: a.longitude,
+                    tier: a.tier,
+                })))
             } catch (err) {
                 console.error(err)
                 setResults([])
@@ -32,5 +41,9 @@ export function useAirportSearch() {
 
     }, [searchQuery])
 
-    return { searchQuery, setSearchQuery, results, loading }
+    function clear(){
+        setSearchQuery('')
+        setResults([])
+    } 
+    return { searchQuery, setSearchQuery, results, loading, clear }
 }

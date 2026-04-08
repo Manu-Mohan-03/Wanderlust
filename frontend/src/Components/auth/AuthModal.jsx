@@ -24,7 +24,6 @@ export default function AuthModal({ onClose }) {
     }
 
     async function handleSubmit(){
-        
         setError(null)
         const validationError = validate()
         if (validationError){
@@ -59,7 +58,11 @@ export default function AuthModal({ onClose }) {
     return (    
         <div className='backdrop' onClick={onClose}>  
             {/* Modal — stop click propagating to backdrop, so that clicking any where on modal donot close it */}
-            <div className='auth-modal' onClick={e => e.stopPropagation()}>
+            <form 
+                className='auth-modal' 
+                onSubmit={handleSubmit}
+                onClick={e => e.stopPropagation()}
+            >
                 <h2 className='title'>{isLogin ? 'Sign In' : 'Create Account'}</h2>
                 <input
                     className='input' 
@@ -97,7 +100,7 @@ export default function AuthModal({ onClose }) {
                         {isLogin ? 'Sign Up' : 'Sign In'}
                     </span>
                 </p>
-            </div>
+            </form>
         </div>
     )
 }

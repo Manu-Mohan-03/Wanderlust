@@ -150,7 +150,7 @@ h1 {
   .right {
     display: flex;
     align-items: center;
-    gap: 10px; 
+    gap: 10px;
 
     .toggle-theme {
       font-size: 18px;
@@ -655,6 +655,7 @@ h1 {
     }
   }
 }
+
 /* For Loading/Error/ No trips @ Trips Page*/
 .info-message {
   text-align: center;
@@ -700,35 +701,125 @@ h1 {
   }
 }
 
+/*Search Airports*/
 .search-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+
+  .input-wrapper {
+    position: relative;
+    flex: 1;
     display: flex;
     align-items: center;
-    gap: 6px;
-    position: relative;
 
-    .input-wrapper {
-        position: relative;
-        flex: 1;
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      font-size: 13px;
+      z-index: 1;
+    }
+
+    .search-input {
+      width: 30%;
+      padding: 9px 12px 9px 32px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .result-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 50%;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      z-index: 3000;
+      margin-top: 4px;
+      overflow: hidden;
+      max-height: 200px;
+      overflow-y: auto;
+
+      .result-item {
         display: flex;
         align-items: center;
+        gap: 8px;
+        /* width: 25%; */
+        padding: 9px 12px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        font-size: 13px;
+        color: var(--text-primary);
 
-        .search-icon {
-            position: absolute;
-            left: 10px;
-            font-size: 13px;
-            z-index: 1;
+        .result-main {
+          font-weight: 700;
+          min-width: 36px;
+          color: var(--accent);
         }
 
-        .search-input {
-            width: 25%;
-            padding: 9px 12px 9px 32px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 13px;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            outline: none;
-            box-sizing: border-box;
+        .result-info {
+          flex: 1;
+          color: var(--text-secondary);
         }
+      }
     }
+  }
+
+  .confirmed-box {
+    flex: 0.3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    border-color: var(--border);
+
+    .confirmed-icon {
+      font-size: 14px;
+    }
+
+    .confirmed-text {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+
+      .confirmed-code {
+        font-weight: 700;
+        font-size: 13px;
+        color: var(--text-primary);
+      }
+
+      .confirmed-name {
+        font-size: 11px;
+        color: var(--text-secondary);
+      }
+    }
+  }
+
+  .arrow-button {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
 }
