@@ -702,6 +702,7 @@ h1 {
 }
 
 /*Search Airports*/
+
 .search-row {
   display: flex;
   align-items: center;
@@ -737,7 +738,7 @@ h1 {
       position: absolute;
       top: 100%;
       left: 0;
-      right: 50%;
+      right: 70%;
       background: var(--bg-primary);
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -772,8 +773,25 @@ h1 {
           color: var(--text-secondary);
         }
       }
+
+      .no-results {
+        padding: 12px;
+        font-size: 13px;
+        /* color: var(--text-secondary); */
+        color: #dc2626;
+        text-align: center;
+      }
     }
+
+    /* .no-results {
+      padding: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: center;
+    } */
   }
+
+
 
   .confirmed-box {
     flex: 0.3;
@@ -784,7 +802,6 @@ h1 {
     border: 1px solid var(--border);
     border-radius: 8px;
     background: var(--bg-primary);
-    border-color: var(--border);
 
     .confirmed-icon {
       font-size: 14px;
@@ -806,6 +823,12 @@ h1 {
         color: var(--text-secondary);
       }
     }
+
+    .error-text {
+      font-size: 11px;
+      color: #dc2626;
+      flex-shrink: 0;
+    }
   }
 
   .arrow-button {
@@ -823,3 +846,34 @@ h1 {
     flex-shrink: 0;
   }
 }
+
+/*Search panel*/
+.search-panel {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 1000px;
+
+  .connector {
+    display: flex;
+    justify-content: center;
+    padding: 2px 0;
+  }
+
+  .connector-line {
+    width: 2px;
+    height: 8px;
+    background: var(--border);
+  }
+}
+
+/* .no-results {
+  padding: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+} */

@@ -1,4 +1,4 @@
-import { useState, useCallback, useContext } from 'react'
+import { useState, useCallback, useContext, useRef } from 'react'
 import Map from 'react-map-gl/maplibre';
 // import { NavigationControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -14,6 +14,7 @@ import { TripDetails } from '../../context/TripContext'
 import { Theme } from '../../context/ThemeContext';
 
 import SearchPanel from './SearchPanel' // added for search
+import { FlyToInterpolator } from '@deck.gl/core';
 
 
 const INITIAL_VIEW = {
@@ -49,9 +50,12 @@ export default function MapView() {
     // populate the route details from a context - TripContext
     const { currentLeg: selectedRoute, addLeg, clearAll } = useContext(TripDetails)
 
+    const searchPanelRef = useRef(null) // Added for search panel
+
     // ── Airport click ──────────────────────────────────────────────
     const handleAirportClick = useCallback((airport) => {
         if (airport === selectedAirport) return
+        flyto(airport) 
         setSelectedAirport(airport)
         fetchRoutes(airport.id)
         // if (selectedRoute){
@@ -92,6 +96,7 @@ export default function MapView() {
         // setSelectedRoute([])
         // setHistoryRoute([])
         clearAll()
+        searchPanelRef.current?.handleClearAll()    // ← sync search panel
     }, [clearRoutes])
 
 
@@ -157,7 +162,20 @@ export default function MapView() {
 
     const mapStyle = isDark
         ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
-        : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'    
+        : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'
+
+    // Added as part of search
+    const flyto = useCallback((airport) => {
+        setViewState(prev => ({
+            ...prev,
+            longitude: airport.longitude,
+            latitude: airport.latitude,
+            zoom: 6,
+            transitionInterpolator: new FlyToInterpolator({speed: 2}),
+            transitionDuration: 800,
+        }))
+    },[])
+    // End of Insert
 
     return (
         <div
@@ -179,15 +197,21 @@ export default function MapView() {
                     return 'grab'
                 }}
             >
-                <Map 
+                <Map
                     mapStyle={mapStyle}
                 />
                 {/* </Map>     */}
             </DeckGL>
 
             {/* Search panel — top left, above map */}
-            <SearchPanel 
-                onAirportSelect={airport => setSelectedAirport(airport)}
+            <SearchPanel
+                ref={searchPanelRef}
+                onAirportSelect={airport => {
+                    //cannot call handleairport click as it might result in infinite loops
+                    setSelectedAirport(airport)
+                    flyto(airport)
+                    fetchRoutes(airport.id)
+                }} 
             />
 
             {/* Airport tooltip */}

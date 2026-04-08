@@ -63,16 +63,18 @@ export default function Header() {
         setShowSaveStatus(true)
         try {
             const newTrip = await saveTrip(selectedLegs, user.id, tripName)
-            setShowSaveModal(false)
             setSaveSuccess(true)
             setTimeout(() => {
                 setShowSaveStatus(false)
                 setSaveSuccess(false)
             }, 3000)
         } catch (err) {
+
             setTimeout(() => {
                 setShowSaveStatus(false)
             }, 3000)
+        } finally {
+            setShowSaveModal(false)
         }
     }
 
