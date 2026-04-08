@@ -3,7 +3,7 @@ import { useAirportSearch } from '../../hooks/useAirportSearch'
 
 export default function SearchInput() {
 
-    const { searchQuery, setSearchQuery } = useAirportSearch
+    const { searchQuery, setSearchQuery, results, loading } = useAirportSearch()
 
     return (
         <div className='search-row'>
@@ -16,8 +16,13 @@ export default function SearchInput() {
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                 />
+
+                {/* DropDown here*/}
+ 
             </div>
         </div>
+
+
     )
 }
 

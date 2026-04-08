@@ -3,15 +3,18 @@ import { createContext, useState } from "react"
 
 const TripDetails = createContext(null)
 
-export default function TripContext({children}) {
+export default function TripContext({ children }) {
     // For the currently selected route
-    const [ currentLeg, setCurrentLeg ] = useState([])
+    const [currentLeg, setCurrentLeg] = useState([])
 
     // For previously selected Legs
-    const [historyLegs, setHistoryLegs ] = useState([]) 
+    const [historyLegs, setHistoryLegs] = useState([])
+
+    // For all airports
+    const [allAirports, setAllAirports] = useState([])
 
     //Helper function to add a leg
-    function addLeg(leg){
+    function addLeg(leg) {
         // Save the current leg to history before adding new leg
         setHistoryLegs([...historyLegs, currentLeg])
         // Create the new leg with a sequence number
@@ -21,19 +24,24 @@ export default function TripContext({children}) {
     }
 
     // Helper to clear everything
-    function clearAll(){
+    function clearAll() {
         setHistoryLegs([])
         setCurrentLeg([])
     }
 
     // To load the trip from a user profile
-    function loadTrip(legs){
+    function loadTrip(legs) {
         setHistoryLegs([])
         setCurrentLeg(legs)
-    } 
+    }
 
     return (
-        <TripDetails.Provider value={{ currentLeg, addLeg, clearAll, loadTrip}}>
+        <TripDetails.Provider
+            value={{
+                currentLeg, addLeg, clearAll,
+                loadTrip, setAllAirports, allAirports
+            }}
+        >
             {children}
         </TripDetails.Provider>
     )
