@@ -5,7 +5,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from datetime import time
 
 from backend.database.orm_models import (
-    UserSchema, TripSchema, TripLeg, LegFlight, Airport, City, Schedules, SessionLocal)
+    UserSchema, TripSchema, TripLeg, LegFlight, Airport, City, Schedules, SessionLocal,
+    Country)
 from backend.business_logic.pydantic_models import (
     UserIn, TripIn, TripOut, TripLegIn, LegFlightIn, LegFlightUpdate,
     TripLegUpdate, TripHeader, UserUpdate)
@@ -113,7 +114,14 @@ class UserRepository:
     def update_user(self, user_db: UserSchema, user_update: UserUpdate):
 
         new_user = user_update.model_dump(exclude_unset=True)
-        for field, value in new_user:
+
+        city_key, country_key = self.convert_city_and_country(
+            new_user.get('city'), new_user.get("country")
+        )
+        new_user['city'] = city_key
+        new_user['country'] = country_key
+
+        for field, value in new_user.items():
             if hasattr(user_db, field):
                 setattr(user_db, field, value)
 
@@ -170,6 +178,19 @@ class UserRepository:
         pass
     """
 
+    def convert_city_and_country(self, city_name = None, country_name = None):
+        airport = AirportRepo(self.db)
+        if city_name:
+            city_key = airport.get_city_code(city_name)
+        else:
+            city_key = None
+        if country_name:
+            country_key = airport.get_country_code(country_name)
+        else:
+            country_key = None
+        return city_key , country_key
+
+
 
 class TripRepository:
     def __init__(self, session: Session):
@@ -204,7 +225,7 @@ class TripRepository:
     def change_trip(self, trip_db: TripSchema, changed_trip: TripHeader, commit: bool = False):
 
         new_trip = changed_trip.model_dump(exclude_unset=True)
-        for field, value in new_trip:
+        for field, value in new_trip.items():
             if hasattr(trip_db, field):
                 setattr(trip_db, field, value)
 
@@ -478,6 +499,15 @@ class AirportRepo:
         except Exception:
             raise
 
+    def get_city_code(self, city_name):
+        stmt = select(City.city_key).where(City.name == city_name)
+        city_key = self.db.execute(stmt).scalar_one_or_none()
+        return city_key
+
+    def get_country_code(self, country_name):
+        stmt = select(Country.country_key).where(Country.name == country_name)
+        country_key = self.db.execute(stmt).scalar_one_or_none()
+        return country_key
 """
 def db_commit(session):
     """"""To save the Database Updates to underlying database""""""

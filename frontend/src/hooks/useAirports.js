@@ -22,6 +22,17 @@ export function useAirports() {
     const [error, setError] = useState(null)
     const { allAirports, setAllAirports } = useContext(TripDetails)
 
+    function addAirport(airportId) {
+
+        let airportFound = airports.find(airport => airport.id === airportId)
+        if (airportFound) return
+        airportFound = allAirports.find(airport => airport.airport_key === airportId)
+        if (airportFound) {
+            const newAirport = normalise(airportFound)
+            setAirports(prev => [...prev, newAirport])
+        }
+    }
+
     useEffect(() => {
         async function getAirports() {
             try {
@@ -47,7 +58,7 @@ export function useAirports() {
         getAirports()
     }, [allAirports])
 
-    return { airports, airportsLoading: loading, error }
+    return { airports, airportsLoading: loading, error, addAirport }
 }
 
 /* Sample API Data 

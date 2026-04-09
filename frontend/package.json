@@ -12,6 +12,8 @@
   "dependencies": {
     "@deck.gl/layers": "^8.9.36",
     "@deck.gl/react": "^8.9.36",
+    "@turf/great-circle": "^7.3.4",
+    "@turf/helpers": "^7.3.4",
     "deck.gl": "^8.9.36",
     "maplibre-gl": "^5.21.1",
     "react": "^19.2.0",

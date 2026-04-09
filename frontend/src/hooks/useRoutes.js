@@ -12,6 +12,7 @@ function normalise(raw) {
             city: raw.orig_airport_details.city.name,  // Added to include city details
             latitude: raw.orig_airport_details.latitude,
             longitude: raw.orig_airport_details.longitude,
+            country: raw.orig_airport_details.city.country.country_key
         },
         to: {
             id: raw.dest_airport,
@@ -19,6 +20,7 @@ function normalise(raw) {
             city: raw.dest_airport_details.city.name, // Added to include city details
             latitude: raw.dest_airport_details.latitude,
             longitude: raw.dest_airport_details.longitude,
+            country: raw.dest_airport_details.city.country.country_key
         },
     }
 }

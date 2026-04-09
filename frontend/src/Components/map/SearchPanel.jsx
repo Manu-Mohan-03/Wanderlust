@@ -53,13 +53,14 @@ export default function SearchPanel({ ref, onAirportSelect }) {
     }
 
     function handleClearAll(){
+        console.log("Imperative in process!!")
         setEntries([{ airport: null, error: null }])
         clearRoutes()
         clearTripAll()
     }
 
     useImperativeHandle(ref, () => {
-        handleClearAll
+        return { handleClearAll }
     })
 
     return (

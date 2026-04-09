@@ -1,10 +1,10 @@
-import { useState, useCallback, useContext, useRef } from 'react'
+import { useState, useCallback, useContext, useRef, useEffect } from 'react'
 import Map from 'react-map-gl/maplibre';
 // import { NavigationControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 // import { DeckGL } from '@deck.gl/react'
-import { ScatterplotLayer, ArcLayer } from '@deck.gl/layers'
+import { ScatterplotLayer, ArcLayer, TextLayer } from '@deck.gl/layers'
 import DeckGL from '@deck.gl/react'
 
 import { useAirports } from '../../hooks/useAirports'
@@ -16,6 +16,9 @@ import { Theme } from '../../context/ThemeContext';
 import SearchPanel from './SearchPanel' // added for search
 import { FlyToInterpolator } from '@deck.gl/core';
 
+import { TripsLayer } from '@deck.gl/geo-layers'
+import { greatCircleMidpoint } from '../../services/greatCircle'
+
 
 const INITIAL_VIEW = {
     longitude: 0,
@@ -25,10 +28,14 @@ const INITIAL_VIEW = {
     bearing: 0,
 }
 
+const ANIMATION_SPEED = 0.3    // how fast the trail moves (lower = slower)
+const TRAIL_LENGTH = 0.2    // length of fading trail (0-1)
+const PULSE_SPEED = 0.05   // how fast available routes pulse
+
 export default function MapView() {
 
     // To get all the required airports from backend
-    const { airports, airportsLoading } = useAirports()
+    const { airports, airportsLoading, addAirport } = useAirports()
     // Initail View state for Deck GL
     const [viewState, setViewState] = useState(INITIAL_VIEW)
     // To display airport details on hovering over dots
@@ -52,10 +59,16 @@ export default function MapView() {
 
     const searchPanelRef = useRef(null) // Added for search panel
 
+    // Animation state
+    const [animTime, setAnimTime] = useState(0)   // TripsLayer current time (0→1 loop)
+    const [pulseTime, setPulseTime] = useState(0)   // pulse frame counter
+
+    const animRef = useRef(null)
+
     // ── Airport click ──────────────────────────────────────────────
     const handleAirportClick = useCallback((airport) => {
         if (airport === selectedAirport) return
-        flyto(airport) 
+        flyto(airport)
         setSelectedAirport(airport)
         fetchRoutes(airport.id)
         // if (selectedRoute){
@@ -80,6 +93,7 @@ export default function MapView() {
         // }) 
         // The above code no more needed as backend adjusted and useRoutes handles it.
         addLeg({ from: route.from, to: route.to, flightId: route.flightId })
+        addAirport(route.to.id)
 
     }, [selectedAirport]) // ,historyRoute])    
 
@@ -99,7 +113,34 @@ export default function MapView() {
         searchPanelRef.current?.handleClearAll()    // ← sync search panel
     }, [clearRoutes])
 
+    // Single animation loop drives both effects
+    useEffect(() => {
+        let running = true
 
+        const loop = () => {
+            if (!running) return
+            setAnimTime(t => (t + ANIMATION_SPEED * 0.01) % 1)
+            setPulseTime(t => t + PULSE_SPEED)
+            animRef.current = requestAnimationFrame(loop)
+        }
+
+        animRef.current = requestAnimationFrame(loop)
+        return () => {
+            running = false
+            cancelAnimationFrame(animRef.current)
+        }
+    }, [])
+
+    //Pulse width for available routes
+    const pulseWidth = 1.5 + Math.sin(pulseTime) * 1.0
+    // Trip -layer needs path + timestamps shape
+    const tripPaths = selectedRoute.map(leg => ({
+        path: [
+            [leg.from.longitude, leg.from.latitude],
+            [leg.to.longitude, leg.to.latitude],
+        ],
+        timestamps: [0, 1],
+    }))
 
     // ── Deck.gl layers ────────────────────────────────────────────   
     const layers = [
@@ -112,16 +153,21 @@ export default function MapView() {
             getTargetPosition: d => [d.to.longitude, d.to.latitude],
             getSourceColor: [100, 160, 255, 120],
             getTargetColor: [100, 160, 255, 120],
-            getWidth: 1.5,
+            // getWidth: 1.5,
+            getWidth: pulseWidth,  // added for animation
             greatCircle: true,
             pickable: true,
             onHover: ({ object, x, y }) => {
                 setHoveredRoute(object
-                    ? { label: `${object.from.id} → ${object.to.id}`, x, y }
+                    ? { label: `${object.from.city} (${object.from.country}) → ${object.to.city} (${object.to.country})`,
+                         x, y }
                     : null
                 )
             },
             onClick: ({ object }) => object && handleRouteClick(object),
+            updateTriggers: {
+                getWidth: pulseWidth
+            }
         }),
 
         // 2. Selected trip arc
@@ -134,6 +180,52 @@ export default function MapView() {
             getTargetColor: [255, 60, 60, 220],
             getWidth: 3,
             greatCircle: true,
+            pickable: true,
+            onHover: ({ object, x, y }) => {
+                setHoveredRoute(object
+                    ? { label: `${object.from.id} → ${object.to.id}`, x, y }
+                    : null
+                )
+            },
+        }),
+
+        new TextLayer({
+            id: 'selected-routes-labels',
+            data: selectedRoute,
+            getPosition: d => {
+                const mid = greatCircleMidpoint(d.from, d.to)
+                return [mid.longitude, mid.latitude]
+            },
+            getText: d => String(d.seq),
+            getSize: 16,
+            getColor: [255, 255, 255],
+            getBackgroundColor: d => [255, 140, 0, 220],  // orange pill background
+            background: true,
+            backgroundPadding: [6, 3, 6, 3],              // [left, top, right, bottom]
+            getBorderRadius: 8,
+            getTextAnchor: 'middle',
+            getAlignmentBaseline: 'center',
+            fontWeight: 'bold',
+            fontFamily: 'system-ui, sans-serif',
+            billboard: true,                         // always faces camera
+            pickable: false,
+        }),
+
+        //New Layer
+        new TripsLayer({
+            id: 'selected-routes-trail',
+            data: tripPaths,
+            getPath: d => d.path,
+            getTimestamps: d => d.timestamps,
+            getColor: [255, 220, 80],  // bright yellow trail
+            widthMinPixels: 3,
+            jointRounded: true,
+            trailLength: TRAIL_LENGTH,
+            // greatCircle: true,
+            currentTime: animTime,   // ← drives animation
+            updateTriggers: {
+                currentTime: animTime
+            },
         }),
 
         // Airport markers
@@ -171,11 +263,12 @@ export default function MapView() {
             longitude: airport.longitude,
             latitude: airport.latitude,
             zoom: 6,
-            transitionInterpolator: new FlyToInterpolator({speed: 2}),
+            transitionInterpolator: new FlyToInterpolator({ speed: 2 }),
             transitionDuration: 800,
         }))
-    },[])
+    }, [])
     // End of Insert
+
 
     return (
         <div
@@ -211,7 +304,7 @@ export default function MapView() {
                     setSelectedAirport(airport)
                     flyto(airport)
                     fetchRoutes(airport.id)
-                }} 
+                }}
             />
 
             {/* Airport tooltip */}

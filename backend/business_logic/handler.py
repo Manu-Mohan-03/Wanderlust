@@ -40,6 +40,9 @@ class User:
         except ValueError as error:
             raise ValueError from error
 
+        if user_update.password is None:
+            user_update.password = user_db.password
+
         updated_user = self.user_db.update_user(user_db, user_update)
         return updated_user
 
@@ -51,7 +54,7 @@ class User:
 
         if not user_id and isinstance(self.user, UserUpdate):
             user_id = self.user.id
-        else:
+        if not user_id:
             raise Exception("User Details cannot be fetched")
         user = self.user_db.get_user(user_id)
         # return UserOut.model_validate(user)

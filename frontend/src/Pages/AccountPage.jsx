@@ -31,7 +31,7 @@ export default function AccountPage() {
       setProfile({
         username: user.username ?? '',
         email: user.email ?? '',
-        city: user.city ?? '',
+        city: user?.city_details?.name ?? '',
         country: user.country ?? '',
       })
     }
@@ -40,11 +40,11 @@ export default function AccountPage() {
   const userDefault = () => {
     return {
       id: user.id,
-      username: null,
-      email: null,
+      username: user?.username ?? null,
+      email: user?.email ?? null,
       role: user.role,
-      city: null,
-      country: null,
+      city: user?.city ?? null,
+      country: user?.country ?? null,
       dark_mode: user.dark_mode ?? false,
       map_mode: user.map_mode ?? false,
       date_tolerance: user.date_tolerance ?? null,
@@ -183,7 +183,7 @@ export default function AccountPage() {
               type="password"
               placeholder="password"
               value={passwords.new}
-              onChange={e => setProfile(prev => ({ ...prev, new: e.target.value }))}
+              onChange={e => setPasswords(prev => ({ ...prev, new: e.target.value }))}
             />
           </div>
 
